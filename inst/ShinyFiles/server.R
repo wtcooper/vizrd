@@ -32,7 +32,7 @@ shinyServer(function(input, output, session) {
               return()
             
             # Get the data set with the appropriate name
-            dat <- get(input$dataset)
+            dat <- data.frame(get(input$dataset))
             colnames <- names(dat)
             
             # Create the checkboxes and select them all by default
@@ -54,7 +54,7 @@ shinyServer(function(input, output, session) {
               return()
             
             # Get the data set with the appropriate name
-            dat <- get(input$dataset)
+            dat <- data.frame(get(input$dataset))
             
             # Remove any factor or character variables
             dat = dat[, !sapply(dat, is.factor)]
@@ -80,7 +80,7 @@ shinyServer(function(input, output, session) {
               return()
             
             # Get the data set with the appropriate name
-            dat <- get(input$dataset)
+            dat <- data.frame(get(input$dataset))
             
             describe(dat)
           })
@@ -98,7 +98,7 @@ shinyServer(function(input, output, session) {
               return()
             
             # Get the data set with the appropriate name
-            dat <- get(input$dataset)
+            dat <- data.frame(get(input$dataset))
             
             if (is.null(input$columns) || !(input$columns %in% names(dat)))
               return()
@@ -123,7 +123,7 @@ shinyServer(function(input, output, session) {
               return(defPlot)
             
             # Get the data set with the appropriate name
-            dat <-  get(input$dataset)
+            dat <-  data.frame(get(input$dataset))
             
             if (is.null(input$columns) || !(input$columns %in% names(dat)))
               return(defPlot)
@@ -209,7 +209,7 @@ shinyServer(function(input, output, session) {
               return(defPlot)
             
             # Get the data set with the appropriate name
-            dat <- get(input$dataset)
+            dat <- data.frame(get(input$dataset))
             
             
             ## Check to make sure the selected column is set 
