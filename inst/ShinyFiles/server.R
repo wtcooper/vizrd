@@ -33,12 +33,15 @@ shinyServer(function(input, output, session) {
             
             # Get the data set with the appropriate name
             dat <- data.frame(get(input$dataset))
+            
+            # first 5 names of numeric variable to plot
+            dat = dat[, !sapply(dat, is.factor)]
             colnames <- names(dat)
             
             # Create the checkboxes and select them all by default
-            checkboxGroupInput("columns", "Choose columns:", 
+            checkboxGroupInput("columns", "Choose columns (defaults to top 5 numeric):", 
                 choices  = colnames,
-                selected = colnames[1:max(10,length(colnames))])
+                selected = colnames[1:min(5,length(colnames))])
           })
       
       
