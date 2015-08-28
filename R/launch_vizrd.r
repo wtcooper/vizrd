@@ -37,7 +37,7 @@ explore_all_data <- function() {
 	dfs = my.ls(class="data.frame")
 	dfLs <<- mget(rownames(my.ls(class="data.frame")), envir=globalenv())
 	
-	if (interactive()) shiny::runApp(system.file("R", package = "vizrd"))
+	if (interactive()) shiny::runApp(system.file("ShinyFiles", package = "vizrd"))
 	
 	
 }
