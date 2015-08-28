@@ -15,7 +15,7 @@ explore_data <- function(dfs) {
 	
 	dfLs <<- mget(dfs, envir=globalenv())
 		
-	if (interactive()) shiny::runApp(system.file("R", package = "vizrd"))
+	if (interactive()) shiny::runApp(system.file("ShinyFiles", package = "vizrd"))
 	
 	
 }
