@@ -240,7 +240,7 @@ shinyServer(function(input, output, session) {
       
       rawSavePlot = reactive({
             g = ggplot(data=densDat(), aes(x=obs, y=Value, fill=StdDeviations)) +
-                geom_point(shape=21, size=4, colour="gray50") +
+                geom_point(shape=21, size=4, colour=NA, alpha=.75) +
                 scale_fill_gradientn(limits = c(0,4),colours=c("darkblue", "orangered"), na.value = "red",name = "Standard\nDeviations" ) +
                 xlab("Observation") +
                 ylab("Value") +

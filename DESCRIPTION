@@ -1,8 +1,8 @@
 Package: vizrd
-Title: Visualization of R data 
+Title: Visualizations of R data and models 
 Version: 0.0.0.9000
 Authors@R: person("Wade", "Cooper", , "wadetcooper@gmail.com", role = c("aut", "cre"))
-Description: Creates interactive visualizations for R data using Shiny.
+Description: Create both static and interactive plots to explore R datasets and evaluate models fits, both classification and regression.
 Depends: R (>= 3.1.3)
 License: GPL-2
 LazyData: true
@@ -11,4 +11,8 @@ Imports: dplyr,
     ggplot2,
     Hmisc,
     scales,
-    tidyr
+    tidyr,
+    RColorBrewer,
+    ggvis,
+    ROCR,
+    caret
