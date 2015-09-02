@@ -15,4 +15,5 @@ Imports: dplyr,
     RColorBrewer,
     ggvis,
     ROCR,
-    caret
+    caret,
+    data.table

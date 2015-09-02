@@ -18,3 +18,5 @@ export(splotResids)
 export(splotTPFPProbs)
 export(splotVarImp)
 export(splotVarImpBase)
+
+import(data.table)
