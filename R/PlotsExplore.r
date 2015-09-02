@@ -38,24 +38,18 @@ splotDataHeatmap <- function(dat, colNms, numObs=75) {
 	
 	## convert from wide to long format for ggplot	
 	plotDatLong = dat %>% gather(Variable, Value, -obs) %>% filter(!is.na(Value))
-	plotDatLong$Value=factor(round(plotDatLong$Value, digits=1), levels=seq(0,1,by=0.1))
-	
-	myPalette <- colorRampPalette(c("azure","steelblue"))
 	
 	
 	## do the plot	
 	base_size <- 12
 	g <- ggplot(plotDatLong, aes(x=Variable, y=obs, fill=Value)) + 
 			geom_tile(colour = "white") + 
-#			scale_fill_gradient(low = "azure", high = "steelblue") +
-#			scale_fill_gradientn(colours = topo.colors(11), values=seq(0,1,by=.1)) +
-			scale_fill_manual(values=myPalette(11)) +
+			scale_fill_gradient(low = "azure", high = "steelblue") +
 			theme_gray(base_size = base_size) + 
 			labs(x = "",y = "") + 
 			scale_x_discrete(expand = c(0, 0)) +
 			scale_y_discrete(expand = c(0, 0)) + 
 			theme(
-#                    legend.position = "top", 
 					axis.ticks = element_blank(), 
 					axis.text.x = element_text(size = base_size , angle = 45, hjust = 1,vjust=1, colour = "grey50"))
 	print(g)
@@ -72,6 +66,7 @@ splotDataPoints <- function(dat, colNms, numObs=NULL) {
 	require(dplyr)
 	require(tidyr)
 	require(ggplot2)	
+	require(data.table)
 	
 	if (!("data.table" %in% class(df))) df = df %>% data.table()
 	
@@ -117,7 +112,8 @@ splotDataPoints <- function(dat, colNms, numObs=NULL) {
 			xlab("Observation") +
 #			ylab(colNm) +
 			theme_bw() +
-			facet_wrap(~Variable,scales ="free_y" )
+			facet_wrap(~Variable,scales ="free_y" )  +
+			theme(axis.title = element_text(face="bold"))
 	
 	print(g)
 }
@@ -164,7 +160,8 @@ splotDataHist <- function(dat, colNm, numObs=NULL, binSize=1, minVal=NULL, maxVa
 			geom_density(alpha=.2, fill="#FF6666")  +
 			ylab("Density") +
 			xlab(colNm)+
-			theme_bw()
+			theme_bw() +
+			theme(axis.title = element_text(face="bold"))
 	
 	print(g)
 }

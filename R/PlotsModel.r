@@ -6,6 +6,7 @@
 #' @param df data frame 
 #' @export
 splotVarImpBase <- function(df) {
+	require(ggplot2)
 	
 	ggplot(df, aes(x=name, y=importance, width=.4)) +
 			geom_bar(stat='identity', fill="steelblue") +
@@ -30,6 +31,7 @@ splotVarImpBase <- function(df) {
 #' @export
 splotVarImp <- function(name, importance, numVars=25, responseOrder=NULL) {
 	require(tidyr)
+	require(ggplot2)
 	
 	df = data.frame(name=name, Importance=importance)
 	df$name=factor(df$name,levels=rev(name))
@@ -38,6 +40,7 @@ splotVarImp <- function(name, importance, numVars=25, responseOrder=NULL) {
 	if (!is.null(responseOrder)) df$response=factor(df$response, levels=responseOrder)
 	else df$response=factor(df$response)
 	imp=splotVarImpBase(df)
+	imp
 }
 
 
@@ -54,6 +57,7 @@ splotVarImp <- function(name, importance, numVars=25, responseOrder=NULL) {
 splotCMProbs <- function(prob, obs, posLabel, negLabel, 
 		probSeq=seq(0.005,0.995, by=0.005)) {
 	require(RColorBrewer)
+	require(ggplot2)
 	
 	tabs=list()
 	tabs = lapply(probSeq, function(cut) {
@@ -89,7 +93,7 @@ splotCMProbs <- function(prob, obs, posLabel, negLabel,
 	ylims=c(min(tempDF$maxVal),1)
 	
 	
-
+	
 	plot1 <- ggplot(posDF, aes(x=cut, y=Freq, fill=Reference)) +
 			geom_bar(stat="identity", position="fill", width=diff)+
 #			scale_y_continuous("Proportion", limits=ylims) + 
@@ -97,8 +101,10 @@ splotCMProbs <- function(prob, obs, posLabel, negLabel,
 			xlab("Probability Theshold") +
 			ylab("Proportion") +
 			coord_cartesian(ylim=ylims, xlim=xlims) +
-			theme_bw() 
+			theme_bw() +
+			theme(axis.title = element_text(face="bold"))
 	
+	plot1
 }
 
 
@@ -125,7 +131,7 @@ splotTPFPProbs <- function(prob, obs, posLabel, negLabel, probSeq=seq(0.05,0.95,
 				df$cut = cut
 				df
 			})
-
+	
 	tabDF=do.call("rbind", tabs)
 	
 #	print(str(tabDF))
@@ -146,16 +152,13 @@ splotTPFPProbs <- function(prob, obs, posLabel, negLabel, probSeq=seq(0.05,0.95,
 			geom_bar(stat="identity", position="identity")+
 			geom_text(aes(label=ifelse(Freq < 0,-1*Freq,Freq)),
 					hjust = ifelse(Freq > 0,0,1),colour = "Black", size=4) +
-			annotate("text", y = min(Freq), x = max(CutVal)*.9, size=4, 
-					label = paste("Total Claims:\n",length(obs),
-							"\n# Events:\n",length(obs[obs=="YES"]),
-							"\n# Non-Events:\n",length(obs[obs=="NO"]),sep="")) +
 			coord_flip() +
-			scale_y_continuous("Number of Claims",expand=c(0.25,0)) + 
+			scale_y_continuous("Number of Observations",expand=c(0.25,0)) + 
 			xlab("Probability Theshold") +
 			theme_bw() +
-			theme(axis.text.x  = element_blank())
+			theme(axis.text.x  = element_blank(),axis.title = element_text(face="bold"))
 	
+	plot1
 }
 
 
@@ -170,6 +173,7 @@ iplotROC <- function(prob, obs) {
 	require(Hmisc)
 	require(ggvis)
 	
+	if (is.character(obs)) obs = factor(obs)
 	# Hmisc calcs (for Gini, also spits out AUC)
 	pmetrics=rcorr.cens(prob, obs)[1:2]
 	
@@ -184,10 +188,10 @@ iplotROC <- function(prob, obs) {
 	rocDF = rocDF %>% mutate(cutoff=ifelse(is.infinite(cutoff),1,cutoff))
 	
 	fDF = rocDF[unlist(best_f1),]
-			
+	
 	rocDF %>% ggvis(x = ~x, y = ~y) %>% 
 			layer_points(data=fDF, size := 500, fillOpacity := 0.5, fill:= "steelblue") %>%
-			layer_text(data=fDF, x=~x+0.05, y=~y, 
+			layer_text(data=fDF, x=~x+0.05, y=~y-0.05, 
 					text:= "F-1", baseline:="middle", fontSize:=12, fontWeight:="bold") %>%  
 			layer_lines(strokeWidth := 5) %>%
 			layer_points(size := 100, fillOpacity := 0.0001, fill = ~cutoff) %>% #fill := NA) %>%
@@ -213,6 +217,7 @@ splotROC <- function(prob, obs) {
 	require(Hmisc)
 	require(ggplot2)
 	
+	if (is.character(obs)) obs = factor(obs)
 	# Hmisc calcs (for Gini, also spits out AUC)
 	pmetrics=rcorr.cens(prob, obs)[1:2]
 	
@@ -231,7 +236,7 @@ splotROC <- function(prob, obs) {
 	
 	g=ggplot(rocDF, aes(x=x, y=y, colour=cutoff))+
 			geom_point(data=fDF, shape=20, size=10, colour="steelblue", alpha=.5) +
-			annotate("text", x = fDF$x+0.05, y = fDF$y, size=4.5,  
+			annotate("text", x = fDF$x+0.05, y = fDF$y-0.05, size=4.5,  
 					hjust=0, label = paste0("F-1 Cutoff:",round(as.numeric(fDF$cutoff),3))) +
 			geom_line(size=2)+
 			scale_colour_gradientn("Probability\nThreshold", colours = myPalette(11), values=seq(0,1,by=.1)) +
@@ -243,7 +248,7 @@ splotROC <- function(prob, obs) {
 			annotate("text", y = .1, x = .9, size=4.5, 
 					label = paste("AUC: ",round(pmetrics[1],digits=3),"\n","Gini: ",round(pmetrics[2],digits=3),sep="")) +
 			theme(axis.title = element_text(face="bold"))
-	
+	g
 }
 
 
@@ -257,6 +262,7 @@ splotROC <- function(prob, obs) {
 splotCM <- function (pred, obs) {
 	require(caret)
 	require(RColorBrewer)
+	require(ggplot2)
 	
 	CM = confusionMatrix(pred, obs)
 	
@@ -295,6 +301,9 @@ splotCM <- function (pred, obs) {
 splotLift <- function (prob, obs, posLabel, negLabel) {
 	require(dplyr)
 	require(Hmisc)
+	require(ggplot2)
+	
+	if (is.character(obs)) obs = as.factor(obs)
 	
 	df =data.frame(obs=obs, pred=prob, stringsAsFactors=FALSE)
 	
@@ -303,41 +312,37 @@ splotLift <- function (prob, obs, posLabel, negLabel) {
 	splits=split(1:length(df[,1]),sort(1:length(df[,1]) %% 10))
 	
 	nms=names(df)[which(names(df) != "obs")]
-#	if (numUni>2) nms=str_replace(nms,"pred.","")
 	nms=posLabel
 	
 	#set of dataframe to hold the resultant predictions
 	dfPlot=data.frame(Response=sort(rep(nms,10)), Decile=rep(1:10,length(nms)), Value=1)
 	
-#	if (numUni>2){  #multinomial, do line for each category
 	perfVals=data.frame(nms=nms, auc=0, gini=0)
 	
-
-		dftemp = df %>% arrange(desc(pred))
-#		dftemp=df[order(df[,paste("pred.",nms[i],sep="")], decreasing=T),]
-		nm=posLabel #str_replace(nms[i],"pred.","")
-		#get the frequency per decile
-		
-		for (j in 1:10){
-			indices=unlist(splits[1:j])
-			dftemp2=dftemp[indices,]
-			dfPlot[dfPlot$Response==nm & dfPlot$Decile==j,"Value"]=(length(dftemp2[dftemp2$obs==nm,1])/length(dftemp2[,1]))/(length(df[df$obs==nm,1])/length(df[,1]))
-		}
-		
-		
-		# Get the AUC and gini associated with each
-		tvals=rcorr.cens(dftemp$pred, dftemp$obs)[1:2]
-		perfVals[perfVals$nms==nm,which(names(perfVals)=="auc")]=tvals['C Index']
-		perfVals[perfVals$nms==nm,which(names(perfVals)=="gini")]=tvals['Dxy']
 	
-
-		textString=paste("AUC=",round(perfVals[perfVals$nms==posLabel,which(names(perfVals)=="auc")],digits=2),
-				"\nGini=",round(perfVals[perfVals$nms==posLabel,which(names(perfVals)=="gini")],digits=2),sep="")			
-		
-		dfPlot$Decile=dfPlot$Decile*10
+	dftemp = df %>% arrange(desc(pred))
+	nm=posLabel #str_replace(nms[i],"pred.","")
+	#get the frequency per decile
+	
+	for (j in 1:10){
+		indices=unlist(splits[1:j])
+		dftemp2=dftemp[indices,]
+		dfPlot[dfPlot$Response==nm & dfPlot$Decile==j,"Value"]=(length(dftemp2[dftemp2$obs==nm,1])/length(dftemp2[,1]))/(length(df[df$obs==nm,1])/length(df[,1]))
+	}
+	
+	
+	# Get the AUC and gini associated with each
+	tvals=rcorr.cens(dftemp$pred, dftemp$obs)[1:2]
+	perfVals[perfVals$nms==nm,which(names(perfVals)=="auc")]=tvals['C Index']
+	perfVals[perfVals$nms==nm,which(names(perfVals)=="gini")]=tvals['Dxy']
+	
+	
+	textString=paste("AUC=",round(perfVals[perfVals$nms==posLabel,which(names(perfVals)=="auc")],digits=2),
+			"\nGini=",round(perfVals[perfVals$nms==posLabel,which(names(perfVals)=="gini")],digits=2),sep="")			
+	
+	dfPlot$Decile=dfPlot$Decile*10
 	
 	maxval=max(dfPlot$Value)
-#	print(maxval)
 	
 	g=ggplot(dfPlot,aes(x=Decile, y=Value)) + 
 			geom_line(size=1.5)+
@@ -349,7 +354,6 @@ splotLift <- function (prob, obs, posLabel, negLabel) {
 			theme_bw() +
 			theme(axis.title = element_text(face="bold"))  
 	
-#	print(dfPlot)
 	g
 }
 
@@ -362,16 +366,21 @@ splotLift <- function (prob, obs, posLabel, negLabel) {
 #' @param pred predicted values
 #' @export
 splotResids <- function (obs, pred) {
+	require(ggplot2)
+	
 	df=data.frame(obs=obs, pred=pred, resid=obs-pred)
 	df$stdres = df$resid/sd(df$resid)
 	
-			
+	xlims=c(min(df$pred), max(df$pred))
+	ylims=c(min(df$stdres), max(df$stdres))
+	
+	
 	g = ggplot(df,aes(x=pred,y=stdres))+
 			stat_density2d(aes(alpha=..level..),alpha=.05, geom="polygon",fill="darkblue") +
 			geom_point(fill="darkblue", colour=NA,shape=21, size=4, alpha=.5)+
 			scale_alpha_continuous(guide=FALSE)+ #
-			scale_x_continuous("Predicted")+
-			scale_y_continuous("Standardized Residuals")+ 
+			scale_x_continuous("Predicted",expand=c(0.2, 0))+
+			scale_y_continuous("Standardized Residuals",expand=c(0.2, 0))+ 
 			theme_bw() +
 			theme(axis.title = element_text(face="bold"))  
 	g
@@ -387,6 +396,8 @@ splotResids <- function (obs, pred) {
 #' @param pred predicted values
 #' @export
 splotQQNorm <- function (obs, pred) {
+	require(ggplot2)
+	
 	df=data.frame(obs=obs, pred=pred, resid=obs-pred)
 	
 	# following four lines from base R's qqline()
@@ -413,8 +424,7 @@ splotQQNorm <- function (obs, pred) {
 #' @param pred predicted values
 #' @export
 splotObsPred = function(obs, pred) {
-	minlim=min(obs, pred)
-	maxlim=max(obs, pred)
+	require(ggplot2)
 	
 	df= data.frame(obs=obs, pred=pred, resid=obs-pred)
 	df$stdres = abs(df$resid)/sd(df$resid)
@@ -424,10 +434,10 @@ splotObsPred = function(obs, pred) {
 			scale_alpha_continuous(guide=FALSE)+ #
 			geom_point(shape=21, size=4, colour=NA, alpha=.75) +
 			scale_fill_gradient("Standardized\nResiduals\n(absolute val.)",low = "darkblue", high = "orangered") +
-			scale_x_continuous("Observed", limits=c(min(minlim,maxlim),max(minlim,maxlim))) + # limits=c(obsRange[1], obsRange[2]),,expand=c(0.3, 0)
-			scale_y_continuous("Predicted", limits=c(min(minlim,maxlim),max(minlim,maxlim))) + # limits=c(predRange[1], predRange[2]),,expand=c(0.3, 0) 
+			scale_x_continuous("Observed",expand=c(0.2, 0)) + 
+			scale_y_continuous("Predicted",expand=c(0.2, 0)) + 
 			theme_bw() +
 			theme(axis.title = element_text(face="bold"))  
-			
+	
 	g	
 }
