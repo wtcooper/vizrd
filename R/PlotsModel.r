@@ -271,7 +271,6 @@ splotCM <- function (pred, obs) {
 	
 	levs = length(unique(mat$Reference))
 	
-#	windows(record=T, width=7, height=5)
 	g = ggplot(mat,aes(Reference,y=as.numeric(Freq), fill=Prediction)) + 
 			geom_bar(stat = "identity", position = "stack", color="gray50") +
 #			xlab("") +
@@ -285,6 +284,75 @@ splotCM <- function (pred, obs) {
 					axis.text.x= element_text(size=10, angle=45, hjust = 1),
 					axis.text.y= element_text(size=10, angle=90, hjust=.5))
 	g	
+}
+
+
+
+
+#' Bar plot of confusion matrices faceted for different probability thresholds.
+#' 
+#' @param prob probability values
+#' @param obs observed labels
+#' @param posLabel 'positive' label
+#' @param negLabel 'negative' label
+#' @param probSeq the probability threshold sequence to use
+#' @export
+splotCMSeq <- function (prob, obs, posLabel, negLabel, probSeq=seq(0.1,0.9, by=0.1)) {
+  require(caret)
+  require(RColorBrewer)
+  
+  mat=NULL
+  vals=NULL
+  for (cut in probSeq) {
+    pred = ifelse(prob >= cut, posLabel, negLabel)
+    pred = factor(pred, levels=c(negLabel, posLabel))
+    if (is.null(mat)) {
+      CM= confusionMatrix(pred, obs, positive=posLabel)
+      mat=CM$table
+      mat=as.data.frame(mat)
+      mat$Cutoff=cut
+      
+      vals=as.data.frame(t(CM$byClass))
+      vals$Cutoff=cut
+    } else {
+      CM= confusionMatrix(pred, obs, positive=posLabel)
+      matt=CM$table
+      matt=as.data.frame(matt)
+      matt$Cutoff=cut
+      mat = rbind(mat, matt)
+      
+      valst=as.data.frame(t(CM$byClass))
+      valst$Cutoff=cut
+      vals = rbind(vals, valst)			
+    }
+  }
+  
+  levs = length(unique(mat$Reference))
+  maxVal = max(mat$Freq)
+  
+  
+  vals$x=posLabel
+  vals$y=1.2*maxVal	
+  vals$label = paste(vals$Cutoff,": TP=",round(vals$Sensitivity,2),", TN=", round(vals$Specificity,2), sep="")
+  vals$Prediction=negLabel
+  
+  mat = mat %>% left_join(vals %>% dplyr::select(Cutoff, label), by="Cutoff")
+  
+  g = ggplot(mat,aes(Reference,y=as.numeric(Freq), fill=Prediction)) + 
+      geom_bar(stat = "identity", position = "stack", color="gray50") +
+      xlab("") +
+      ylab("Frequency")+
+      theme_bw()+ 
+      scale_fill_manual("Predicted",values = brewer.pal(levs+1,"YlGnBu")[c(2:(levs+1))])+
+      guides(fill = guide_legend(override.aes = list(colour = NULL)))+
+      theme(legend.key = element_rect(colour = "gray50"),
+          strip.text= element_text(size=8, face="bold"),
+          axis.title.x =element_blank(),
+          axis.title.y =element_text(size=12, face = "bold", colour = "black"),
+          axis.text.x= element_text(size=10, angle=45, hjust = 1),
+          axis.text.y= element_text(size=10, angle=90, hjust=.5)) +
+      facet_wrap(~label)
+  g	
 }
 
 

@@ -91,11 +91,11 @@ predBin = predBin %>% mutate(pred = round(prob,0)) %>%
 
 # make the plots
 splotCM(predBin$pred, predBin$obs)
+splotCMSeq(predBin$prob, predBin$obs, posLabel="virginica", negLabel="versicolor")
 splotCMProbs(predBin$prob, predBin$obs, posLabel="virginica", negLabel="versicolor")
 splotTPFPProbs(predBin$prob, predBin$obs, posLabel="virginica", negLabel="versicolor")
 splotROC(predBin$prob, predBin$obs)
 iplotROC(predBin$prob, predBin$obs)  #interactive ggvis version, more for playing with ggvis
-iplotROC(predBin$prob, predBin$obs)
 splotLift(predBin$prob, predBin$obs, posLabel="virginica", negLabel="versicolor")
 ```
 
