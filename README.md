@@ -14,6 +14,12 @@ deviations from the mean.  <br />
 
 ```R
 library(devtools) 
+
+## Remove old version if pre-installed
+if ("package:vizrd" %in% search()) { detach("package:vizrd", unload=TRUE) }
+if ("vizrd" %in% rownames(installed.packages())) { remove.packages("vizrd") }
+
+## Install most current version
 devtools::install_github("wtcooper/vizrd")
 ```
 
