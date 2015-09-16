@@ -49,8 +49,10 @@ explore_data("iris")
 
 ## Static plots
 splotDataHeatmap(iris, colNms=names(iris)[1:4])
-splotDataHist(iris, colNm="Sepal.Length", binSize=.1)
-splotDataPoints(iris, colNms=names(iris)[1:4])
+splotDataHist(iris, colNm="Sepal.Length", binSize=.1)  						# All species
+splotDataHist(iris, colNm="Sepal.Length", binSize=.1, byCol="Species")		# By species
+splotDataPoints(iris, colNms=names(iris)[1:4])								# All variables
+splotDataPoints(iris, colNms=names(iris)[1], byCol="Species")				# Single column, by species
 
 ## Save all data to a pdf
 splotPointsToPDF(iris, colNms=names(iris)[1:4], totPerPage=4, pdffile="plots.pdf")
