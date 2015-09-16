@@ -3,7 +3,7 @@
 export(explore_all_data)
 export(explore_data)
 export(iplotROC)
-export(savePlot)
+export(saveDefPlot)
 export(splotCM)
 export(splotCMProbs)
 export(splotCMSeq)
@@ -19,5 +19,6 @@ export(splotResids)
 export(splotTPFPProbs)
 export(splotVarImp)
 export(splotVarImpBase)
+
 
 import(data.table)

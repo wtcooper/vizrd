@@ -5,7 +5,7 @@
 \title{Plots a histogram for a column.}
 \usage{
 splotDataHist(dat, colNm, numObs = NULL, binSize = 1, minVal = NULL,
-  maxVal = NULL)
+  maxVal = NULL, byCol = NULL)
 }
 \arguments{
 \item{dat}{dataset}
@@ -19,6 +19,8 @@ splotDataHist(dat, colNm, numObs = NULL, binSize = 1, minVal = NULL,
 \item{minVal}{The minimum value to include}
 
 \item{maxVal}{The maximum value to include}
+
+\item{byCol}{by group column name by which to facet the plots}
 }
 \description{
 Plots a histogram for a column.

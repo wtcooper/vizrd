@@ -4,14 +4,16 @@
 \alias{splotDataPoints}
 \title{Plots raw data points (y-axis = values, x-axis = row #).}
 \usage{
-splotDataPoints(dat, colNms, numObs = NULL)
+splotDataPoints(dat, colNms, numObs = NULL, byCol = NULL)
 }
 \arguments{
 \item{dat}{dataset}
 
-\item{numObs}{The top n observations to include in the plot}
+\item{colNms}{the column(s) you want to plot}
 
-\item{colNm}{the column you want to plot}
+\item{numObs}{the top n observations to include in the plot}
+
+\item{byCol}{by group column name by which to facet the plots}
 }
 \description{
 Plots raw data points (y-axis = values, x-axis = row #).
