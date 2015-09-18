@@ -509,3 +509,53 @@ splotObsPred = function(obs, pred) {
 	
 	g	
 }
+
+
+
+
+
+
+#' Plots splines from an mgcv gam model (or gamm, just pass mod$gam).
+#' This has less functionality than the plot.gam() function (no all.terms=T, no rug), 
+#' it's just a default using ggplot with facet for visual effects. Since
+#' it doesn't have an all.terms=T option, it will only plot the 
+#' spline terms.  
+#' 
+#' @param mod gam model
+#' @export
+splotGAMSplines <- function(mod) {
+  require(ggplot2)
+  
+  ## Grab the data to plot, returned via plot.gam as of v1.8.5
+  x=capture.output({
+        png("NUL")
+        plotdata <- plot.gam(mod, pages = 1, all.terms=TRUE)
+        dev.off()
+      })
+
+  ## Create a long dataset for ggplot
+  pdat = NULL
+  levs =c()
+  for (spls in plotdata) {
+    tdat = data.frame(x=spls$x, fit=spls$fit[,1], lower=spls$fit[,1]-spls$se, upper=spls$fit[,1]+spls$se)
+    tdat$var = spls$ylab
+    levs=c(levs,spls$ylab)
+    if (is.null(pdat)) pdat=tdat
+    else pdat=rbind(pdat, tdat)
+  }
+  pdat$var = factor(pdat$var, level=levs)
+  
+  g= ggplot(data=pdat, aes(x=x, y=fit)) +
+      geom_line() +
+      geom_ribbon(aes(ymax=upper, ymin=lower), alpha=.25) +
+      facet_wrap(~var) +
+      ylab("Partial Effect") +
+      theme_bw() +
+      theme(strip.text = element_text(size=10, face = "bold", colour = "black"),
+          axis.title.x =element_blank(),
+          axis.title.y =element_text(size=12, face = "bold", colour = "black"),
+          axis.text.x= element_text(size=10, angle=45, hjust = 1),
+          axis.text.y= element_text(size=10, angle=90, hjust=.5))
+  
+  print(g)
+}
