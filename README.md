@@ -110,12 +110,16 @@ splotLift(predBin$prob, predBin$obs, posLabel="virginica", negLabel="versicolor"
 #### Odds and Ends #### 
 
 ## mgcv gam splines plot
-## currently less flexible than plot.gam() (only splines, no rug) 
+## currently less flexible than plot.gam() (only splines) 
 ## built for a report with nicer than base graphics so stuck in here
 
 library(mgcv)
 dat <- gamSim(5,n=200,scale=2)
 mod <- gam(y ~ x1+ + s(x1) + s(I(x1^2)) + s(x2) + offset(x3) , data = dat)
+
 splotGAMSplines(mod)
+splotGAMSplines(mod, rug=TRUE, residuals=TRUE)   #add rug to x-axis and residuals as in plot.gam()
 ```
+
+
 
