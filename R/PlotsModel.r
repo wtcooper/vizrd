@@ -516,15 +516,19 @@ splotObsPred = function(obs, pred) {
 
 
 #' Plots splines from an mgcv gam model (or gamm, just pass mod$gam).
-#' This has less functionality than the plot.gam() function (no all.terms=T, no rug), 
+#' This has less functionality than the plot.gam() function (no all.terms=T), 
 #' it's just a default using ggplot with facet for visual effects. Since
 #' it doesn't have an all.terms=T option, it will only plot the 
 #' spline terms.  
 #' 
 #' @param mod gam model
+#' @param residuals add residuals (default=F)
+#' @param rug add rug plot at bottom of x-axis (default=F)
 #' @export
-splotGAMSplines <- function(mod) {
+splotGAMSplines <- function(mod, residuals=FALSE, rug=FALSE) {
   require(ggplot2)
+  require(tidyr)
+  require(dplyr)
   
   ## Grab the data to plot, returned via plot.gam as of v1.8.5
   x=capture.output({
@@ -533,22 +537,56 @@ splotGAMSplines <- function(mod) {
         dev.off()
       })
 
+
+if (residuals) {
+	fv <- as.data.frame(predict(mod,type="terms")) ## get term estimates
+	fv = fv %>% dplyr::select(starts_with("s(")) ## remove non-spline terms
+	names(fv) = gsub("^s|[(]|[)]","", names(fv)) ## replace with variable name for later 
+	prsd1 <- residuals(mod,type="working") #+ fv[,1]
+}
+
+
+
   ## Create a long dataset for ggplot
-  pdat = NULL
+  predDat = NULL
+  resDat = NULL
   levs =c()
+  
   for (spls in plotdata) {
     tdat = data.frame(x=spls$x, fit=spls$fit[,1], lower=spls$fit[,1]-spls$se, upper=spls$fit[,1]+spls$se)
-    tdat$var = spls$ylab
-    levs=c(levs,spls$ylab)
-    if (is.null(pdat)) pdat=tdat
-    else pdat=rbind(pdat, tdat)
+    tdat$var = spls$xlab
+    levs=c(levs,spls$xlab)
+    if (is.null(predDat)) {
+		predDat=tdat
+	} else {
+		predDat=rbind(predDat, tdat)
+	}
+
+	if (residuals) {
+		rtdat = fv %>% dplyr::select(one_of(spls$xlab))
+		names(rtdat)="resid"
+		rtdat$resid = prsd1 + rtdat$resid
+		rtdat$x=mod$model[,spls$xlab]
+		rtdat$var = spls$xlab
+		
+		if (is.null(resDat)) {
+			resDat = rtdat
+		} else {
+			resDat = rbind(resDat, rtdat)
+		}
+	}
   }
-  pdat$var = factor(pdat$var, level=levs)
+
+  predDat$var = factor(predDat$var, level=levs)
+
+  datLng = mod$model %>% dplyr::select(one_of(levs)) %>% gather(var, x)
+  datLng$fit=0  
   
-  g= ggplot(data=pdat, aes(x=x, y=fit)) +
+  
+  g= ggplot(data=predDat, aes(x=x, y=fit)) +
       geom_line() +
       geom_ribbon(aes(ymax=upper, ymin=lower), alpha=.25) +
-      facet_wrap(~var) +
+      facet_wrap(~var, scales="free_x") +
       ylab("Partial Effect") +
       theme_bw() +
       theme(strip.text = element_text(size=10, face = "bold", colour = "black"),
@@ -557,5 +595,8 @@ splotGAMSplines <- function(mod) {
           axis.text.x= element_text(size=10, angle=45, hjust = 1),
           axis.text.y= element_text(size=10, angle=90, hjust=.5))
   
+	if (rug) g = g + geom_rug(data=datLng, sides="b", size=.1, position=position_jitter(width = 0.1)) 
+	if (residuals) g = g + geom_point(data=resDat, aes(x=x, y=resid), size=.01, alpha=0.25) 
+	
   print(g)
 }
