@@ -105,13 +105,100 @@ splotTPFPProbs(predBin$prob, predBin$obs, posLabel="virginica", negLabel="versic
 splotROC(predBin$prob, predBin$obs)
 iplotROC(predBin$prob, predBin$obs)  #interactive ggvis version, more for playing with ggvis
 splotLift(predBin$prob, predBin$obs, posLabel="virginica", negLabel="versicolor")
+```
 
 
-#### Odds and Ends #### 
+## Partial Effects Plots 
 
-## mgcv gam splines plot
-## currently less flexible than plot.gam() (only splines) 
-## built for a report with nicer than base graphics so stuck in here
+
+### General Partial Effects Plots
+Can do general partial effects plots for any model type, just need to provide a custom prediction function (predFnx=).
+Can do similar calculation to randomForest::partialEffect() by setting type="all", or as in the plotmo package by 
+using type="median".  Note: if you're interested in partial effects for random forests, you should use the forestFloor 
+package which provides excellent functionality.
+
+```R
+
+### GAM ###
+library(mgcv)
+dat <- gamSim(5,n=200,scale=2)
+gam.mod <- gam(y ~ x0 + x1 + s(x1) + s(I(x1^2)) + s(x2) + offset(x3) , data = dat)
+
+# Create a prediction function that returns a data frame of predictions
+# If want to plot CI/SE's, need to have xxx_lower and xxx_higher for each xxx named
+#   prediction
+gamPredFnx <- function(mod, newdata) {
+	preds = data.frame(pred=as.vector(predict.gam(mod, newdata=newdata, type="response", se.fit=T)))
+	preds$pred=as.vector(preds$pred.fit)
+	preds$pred_lower = as.vector(preds$pred.fit-preds$pred.se.fit)
+	preds$pred_upper = as.vector(preds$pred.fit+preds$pred.se.fit)
+	preds[,c("pred", "pred_lower", "pred_upper")]
+	
+}
+
+# Plot at median value for numeric and mode value for factor/character's
+# I.e., hold covariates constant and get predictions along range of variable
+splotPartialEffs(gam.mod, dat, gamPredFnx, colNms=names(dat)[2:5], CIOn=T, type="median", totPerPage=9, pdffile=NULL) 
+
+# For each value of predictor, calculate prediction as mean of predictions from all data points at that given predictor value
+# I.e., for all observed covariates value combinations, get predictions along range of variable
+splotPartialEffs(gam.mod, dat, gamPredFnx, colNms=names(dat)[2:5], CIOn=T, type="all", totPerPage=9, pdffile=NULL) 
+
+## Note: if have polynomial/interaction terms and want seperate effect 
+##  for each (e.g., as in plot.gam()) then create model with seperate variables
+## Do all variables seperate 
+dat2 = dat
+dat2$x1Poly = dat2$x1*dat2$x1; dat2$x1Lin = dat2$x1
+gam.mod2 = gam(y ~ x0 + x1Lin + s(x1) + s(x1Poly) + s(x2) + offset(x3) , data = dat2)
+
+plot.gam(gam.mod2, pages=1, all.terms=T, se=1)
+splotPartialEffs(gam.mod2, dat2, gamPredFnx, colNms=names(dat2)[c(2,3,4,6,7)], CIOn=T, type="median", totPerPage=9, pdffile=NULL) 
+
+
+
+
+### Random Forest ###
+require(randomForest)
+
+## Classification 
+data(iris)
+iris.rf <- randomForest(Species ~ ., data=iris, importance=TRUE, proximity=TRUE)
+
+rfPredFnx <- function(mod, newdata) {
+	preds = as.data.frame(predict(mod, newdata=newdata, type="prob"))
+}
+
+splotPartialEffs(mod=iris.rf, dat=iris, predFnx=rfPredFnx, colNms=names(iris)[1:4], CIOn=FALSE, type="median", totPerPage=9, pdffile=NULL) 
+splotPartialEffs(mod=iris.rf, dat=iris, predFnx=rfPredFnx, colNms=names(iris)[1:4], CIOn=FALSE, type="all", totPerPage=9, pdffile=NULL) 
+
+# output pdf
+splotPartialEffs(mod=iris.rf, dat=iris, predFnx=rfPredFnx, colNms=names(iris)[1:4], CIOn=FALSE, type="median", totPerPage=9, pdffile="irisplots.pdf") 
+
+
+## Regression 
+library(randomForest)
+a <- runif(5000, 1, 100)
+b <- runif(5000, 1, 100)
+c <- (1:5000)/50 + rnorm(100, mean = 0, sd = 0.1)
+y <- (1:5000)/50 + rnorm(100, mean = 0, sd = 0.1)
+Data <- data.frame(matrix(c(y, a, b, c), ncol = 4))
+names(Data) <- c("y", "a", "b", "c")
+
+rf.model <- randomForest(y ~ a + b + c, data = Data[sample(5000,100),],nodesize=5,ntress=2000)
+
+rfPredFnx <- function(mod, newdata) {
+	preds = data.frame(pred=predict(mod, newdata=newdata))
+}
+
+splotPartialEffs(rf.model, Data, rfPredFnx, colNms=c("a", "b", "c"), CIOn=FALSE, type="median", totPerPage=9, pdffile=NULL) 
+
+```
+
+### GAM Specific
+This is currently less flexible than plot.gam() -- it only does splines and not all.terms=T, but it 
+was built for a report with nicer than base graphics so stuck in here.
+
+```R
 
 library(mgcv)
 dat <- gamSim(5,n=200,scale=2)
@@ -120,6 +207,7 @@ mod <- gam(y ~ x1+ + s(x1) + s(I(x1^2)) + s(x2) + offset(x3) , data = dat)
 splotGAMSplines(mod)
 splotGAMSplines(mod, rug=TRUE, residuals=TRUE)   #add rug to x-axis and residuals as in plot.gam()
 ```
+
 
 
 
