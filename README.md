@@ -6,9 +6,8 @@ Includes a number of static ggplot2 plots (splot....) and a few interactive ggiv
 along with a simple Shiny launcher package that provides summary statistics, a data table explorer, 
 a heatmap plot of raw (scaled) data, some distribution based plots, and ability to download
 the plots as .png.  Intended to provide a quick overview of a dataset and see how data
-in each of a dataset's columns are distributed.  Will likely add some outlier detection
-support in near term versus the crude current approach of plotting the data by standard
-deviations from the mean.  <br />
+in each of a dataset's columns are distributed.  Also includes plots for exploring regression and classification
+model fits, both performance metrics and a generalized partial effect plot function for any model type.  <br />
 
 ## Installation
 
@@ -23,8 +22,8 @@ if ("vizrd" %in% rownames(installed.packages())) { remove.packages("vizrd") }
 devtools::install_github("wtcooper/vizrd")
 ```
 
-
-## Shiny Use
+## Data Exploration
+### Shiny 
 Call the explore_data() function with a character vector of dataframe names in the current environment, 
 or call explore_all_data() which will allow you to choose any data.frame/data.table/tbl_df once the Shiny
 app launches. 
@@ -35,17 +34,10 @@ data(mtcars)
 explore_data(c("iris","mtcars"))  
 ```
 
-## Other Plotting Functions 
-See the functions in PlotsExplore.r and PlotsModel.r for available plots.  Includes plots for exploring the data
-(heatmap, raw data points, histogram distributions), classification model evaluation (confusion matrices, ROC),
-and regression models (residuals, qqplot, observed vs predicted).  Many of these are standard plots I use frequently but worked up in ggplot2.  Right now I only have plots for binomial targets, but will eventually put in multinomial plots too where appropriate.
+### ggplot
 
 ```R
 #### Explore Data #### 
-
-## Shiny app
-explore_data("iris")
-
 
 ## Static plots
 splotDataHeatmap(iris, colNms=names(iris)[1:4])
@@ -56,8 +48,11 @@ splotDataPoints(iris, colNms=names(iris)[1], byCol="Species")				# Single column
 
 ## Save all data to a pdf
 splotPointsToPDF(iris, colNms=names(iris)[1:4], totPerPage=4, pdffile="plots.pdf")
+```
 
+## Model Performance and Diagnostics 
 
+```R
 #### Regression plots #### 
 irisReg = iris %>% select(-Species)
 trainIdx = sample(1:dim(irisReg)[1], floor(.7*dim(irisReg)[1]), replace=FALSE)
@@ -108,10 +103,10 @@ splotLift(predBin$prob, predBin$obs, posLabel="virginica", negLabel="versicolor"
 ```
 
 
-## Partial Effects Plots 
+## Partial Effects  
 
 
-### General Partial Effects Plots
+### General Partial Effects 
 Can do general partial effects plots for any model type, just need to provide a custom prediction function (predFnx=).
 Can do similar calculation to randomForest::partialEffect() by setting type="all", or as in the plotmo package by 
 using type="median".  Note: if you're interested in partial effects for random forests, you should use the forestFloor 
