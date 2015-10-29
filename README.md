@@ -23,7 +23,7 @@ devtools::install_github("wtcooper/vizrd")
 ```
 
 ## Data Exploration
-### Shiny 
+### shiny 
 Call the explore_data() function with a character vector of dataframe names in the current environment, 
 or call explore_all_data() which will allow you to choose any data.frame/data.table/tbl_df once the Shiny
 app launches. 
@@ -107,8 +107,8 @@ splotLift(predBin$prob, predBin$obs, posLabel="virginica", negLabel="versicolor"
 
 
 ### General Partial Effects 
-Can do general partial effects plots for any model type, just need to provide a custom prediction function (predFnx=).
-Can do similar calculation to randomForest::partialEffect() by setting type="all", or as in the plotmo package by 
+Provides ability to construct  general partial effects plots for any model type, just need to provide a custom prediction function (predFnx=). 
+Will do similar calculation to randomForest::partialEffect() by setting type="all", or as in the plotmo package by 
 using type="median".  Note: if you're interested in partial effects for random forests, you should use the forestFloor 
 package which provides excellent functionality.
 
