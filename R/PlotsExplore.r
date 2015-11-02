@@ -193,10 +193,11 @@ splotDataHist <- function(dat, colNm, numObs=NULL, binSize=1, minVal=NULL, maxVa
 #' 
 #' @param dat dataset
 #' @param colNms the column(s) you want to plot
-#' @param numObs the top n observations to include in the plot
 #' @param byCol by group column name by which to facet the plots
+#' @param violCol the colour of the violin
+#' @param outAlpha the transparency for the boxplot outliers
 #' @export
-splotDataDist <- function(dat, colNms, byCol=NULL, baseCol="gray65") {
+splotDataDist <- function(dat, colNms, byCol=NULL, violCol="gray70", outAlpha=0.5) {
 	require(tidyr)
 	require(dplyr)
 	require(ggplot2)	
@@ -233,12 +234,13 @@ splotDataDist <- function(dat, colNms, byCol=NULL, baseCol="gray65") {
 		
 		outlier_data <- plotDatLong[, find_outliers(Value), by=list(Variable, byCol)]
 		setnames(outlier_data, "V1", "Value")
+		outlier_data$Value = jitter(outlier_data$Value, factor=0.5) 
 		
 		
 		g = ggplot(data=plotDatLong, aes(x=byCol, y=Value)) +
-				geom_violin(fill=baseCol, colour=NA) + 
-				geom_boxplot(width=.1, size=1, outlier.colour=NA) + 
-				geom_point(data = outlier_data, shape=21, size=1.5, fill="gray25", colour=NA, alpha=.2) +
+				geom_violin(fill=violCol, colour=NA) + 
+				geom_boxplot(width=.1, size=1, colour="gray25", outlier.colour=NA) + 
+				geom_point(data = outlier_data, shape=21, size=2, fill="gray25", colour=NA, alpha=outAlpha) +
 				theme_bw() +
 				facet_wrap(~Variable, scales = "free") + 
 				theme(axis.text.x = element_text(face="bold", angle = 45, hjust = 1,vjust=1), 
@@ -254,12 +256,12 @@ splotDataDist <- function(dat, colNms, byCol=NULL, baseCol="gray65") {
 		
 		outlier_data <- plotDatLong[, find_outliers(Value), by=Variable]
 		setnames(outlier_data, "V1", "Value")
-		
+		outlier_data$Value = jitter(outlier_data$Value, factor=0.5) 
 		
 		g = ggplot(data=plotDatLong, aes(x=1, y=Value)) +
-				geom_violin(fill=baseCol, colour=NA) + 
-				geom_boxplot(width=.1, size=1, outlier.colour=NA) + 
-				geom_point(data = outlier_data, shape=21, size=1.5, fill="gray25", colour=NA, alpha=.2) +
+				geom_violin(fill=violCol, colour=NA) + 
+				geom_boxplot(width=.1, size=1, colour="gray25", outlier.colour=NA) + 
+				geom_point(data = outlier_data, shape=21, size=2, fill="gray25", colour=NA, alpha=outAlpha) +
 				theme_bw() +
 				facet_wrap(~Variable, scales = "free") + 
 				theme(axis.text.x = element_blank(), 
@@ -287,9 +289,9 @@ splotDataDist <- function(dat, colNms, byCol=NULL, baseCol="gray65") {
 #' @param colNm the column you want to plot
 #' @param numObs The top n observations to include in the plot
 #' @param totPerPage Total number of figures per page (default=9)
-#' @param pdffile The file path/name to save to.
+#' @param pdfFile The file path/name to save to.
 #' @export
-splotPointsToPDF <- function(dat, colNms=NULL, numObs=NULL, totPerPage=9, pdffile) {
+splotPointsToPDF <- function(dat, colNms=NULL, numObs=NULL, totPerPage=9, pdfFile) {
 	
 	if (!is.null(colNms)) dat = dat %>% select(one_of(colNms))
 	
@@ -303,7 +305,7 @@ splotPointsToPDF <- function(dat, colNms=NULL, numObs=NULL, totPerPage=9, pdffil
 	
 	splits=split(gdNms,sort(rank(gdNms) %% numPages))
 	
-	pdf(pdffile,width=8.5, height=11)
+	pdf(pdfFile,width=8.5, height=11)
 	
 	
 	for (i in 1:length(splits)) {
@@ -326,11 +328,13 @@ splotPointsToPDF <- function(dat, colNms=NULL, numObs=NULL, totPerPage=9, pdffil
 #' 
 #' @param dat dataset
 #' @param colNm the column you want to plot
-#' @param numObs The top n observations to include in the plot
+#' @param byCol by group column name by which to facet the plots
+#' @param violCol the colour of the violin
+#' @param outAlpha the transparency for the boxplot outliers
 #' @param totPerPage Total number of figures per page (default=9)
-#' @param pdffile The file path/name to save to.
+#' @param pdfFile The file path/name to save to.
 #' @export
-splotDistToPDF <- function(dat, colNms=NULL, byCol=NULL, baseCol="gray65", totPerPage=9, pdffile) {
+splotDistToPDF <- function(dat, colNms=NULL, byCol=NULL, violCol="gray70", outAlpha=0.5, totPerPage=9, pdfFile) {
 	
 	if (!is.null(colNms)) dat = dat %>% select(one_of(colNms, byCol))
 	
@@ -344,12 +348,12 @@ splotDistToPDF <- function(dat, colNms=NULL, byCol=NULL, baseCol="gray65", totPe
 	
 	splits=split(gdNms,sort(rank(gdNms) %% numPages))
 	
-	pdf(pdffile,width=8.5, height=11)
+	pdf(pdfFile,width=8.5, height=11)
 	
 	
 	for (i in 1:length(splits)) {
 		colNmTemp=splits[[i]]
-		splotDataDist(dat, colNms=colNmTemp, byCol=byCol, baseCol=baseCol)
+		splotDataDist(dat, colNms=colNmTemp, byCol=byCol, violCol=violCol, outAlpha=outAlpha)
 	}
 	dev.off()
 }
