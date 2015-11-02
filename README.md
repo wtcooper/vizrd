@@ -39,15 +39,20 @@ explore_data(c("iris","mtcars"))
 ```R
 #### Explore Data #### 
 
-## Static plots
+## Static ggplot plots
 splotDataHeatmap(iris, colNms=names(iris)[1:4])
-splotDataHist(iris, colNm="Sepal.Length", binSize=.1)  						# All species
-splotDataHist(iris, colNm="Sepal.Length", binSize=.1, byCol="Species")		# By species
-splotDataPoints(iris, colNms=names(iris)[1:4])								# All variables
-splotDataPoints(iris, colNms=names(iris)[1], byCol="Species")				# Single column, by species
+splotDataHist(iris, colNm="Sepal.Length", binSize=.1)                       # All species
+splotDataHist(iris, colNm="Sepal.Length", binSize=.1, byCol="Species")      # By species
+splotDataPoints(iris, colNms=names(iris)[1:4])                              # All variables
+splotDataPoints(iris, colNms=names(iris)[1], byCol="Species")               # Single column, by species
+splotDataDist(iris, colNms=names(iris)[1:4])								# Distribution plot (violin + box plot)                              
+splotDataDist(iris, colNms=names(iris)[1], byCol="Species")               
+splotDataDist(iris, colNms=names(iris)[1:4], byCol="Species", baseCol="slategray1")     # facet columns with by group          
 
-## Save all data to a pdf
+## Save all data points to a pdf
 splotPointsToPDF(iris, colNms=names(iris)[1:4], totPerPage=4, pdffile="plots.pdf")
+splotDistToPDF(iris, colNms=names(iris)[1:4], byCol="Species",  totPerPage=4, pdffile="plots.pdf")
+
 ```
 
 ## Model Performance and Diagnostics 

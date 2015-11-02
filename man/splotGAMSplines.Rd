@@ -3,19 +3,23 @@
 \name{splotGAMSplines}
 \alias{splotGAMSplines}
 \title{Plots splines from an mgcv gam model (or gamm, just pass mod$gam).
-This has less functionality than the plot.gam() function (no all.terms=T, no rug),
+This has less functionality than the plot.gam() function (no all.terms=T),
 it's just a default using ggplot with facet for visual effects. Since
 it doesn't have an all.terms=T option, it will only plot the
 spline terms.}
 \usage{
-splotGAMSplines(mod)
+splotGAMSplines(mod, residuals = FALSE, rug = FALSE)
 }
 \arguments{
 \item{mod}{gam model}
+
+\item{residuals}{add residuals (default=F)}
+
+\item{rug}{add rug plot at bottom of x-axis (default=F)}
 }
 \description{
 Plots splines from an mgcv gam model (or gamm, just pass mod$gam).
-This has less functionality than the plot.gam() function (no all.terms=T, no rug),
+This has less functionality than the plot.gam() function (no all.terms=T),
 it's just a default using ggplot with facet for visual effects. Since
 it doesn't have an all.terms=T option, it will only plot the
 spline terms.
