@@ -214,14 +214,31 @@ splotDataDist <- function(dat, colNms, byCol=NULL, baseCol="gray65") {
 	dat = dat %>% select(one_of(gdNms, byCol))
 	
 	
+	
+	# This returns a data frame with the outliers only
+	find_outliers <- function(y, coef = 1.5) {
+		qs <- c(0.25, 0.75)
+		stats <- as.numeric(quantile(y, qs))
+		iqr <- diff(stats)
+		outliers <- y < (stats[1] - coef * iqr) | y > (stats[2] + coef * iqr)
+		return(y[outliers])
+	}
+	
+	
+	
 	if (!is.null(byCol)) {
 
 		setnames(dat, byCol, "byCol")
-		plotDatLong = dat %>% gather(Variable, Value, -byCol) %>% filter(!is.na(Value))
+		plotDatLong = dat %>% gather(Variable, Value, -byCol) %>% filter(!is.na(Value)) %>% data.table()
+		
+		outlier_data <- plotDatLong[, find_outliers(Value), by=list(Variable, byCol)]
+		setnames(outlier_data, "V1", "Value")
+		
 		
 		g = ggplot(data=plotDatLong, aes(x=byCol, y=Value)) +
 				geom_violin(fill=baseCol, colour=NA) + 
-				geom_boxplot(width=.1, size=1) + 
+				geom_boxplot(width=.1, size=1, outlier.colour=NA) + 
+				geom_point(data = outlier_data, shape=21, size=1.5, fill="black", colour=NA, alpha=.5) +
 				theme_bw() +
 				facet_wrap(~Variable, scales = "free") + 
 				theme(axis.text.x = element_text(face="bold", angle = 45, hjust = 1,vjust=1), 
@@ -233,11 +250,16 @@ splotDataDist <- function(dat, colNms, byCol=NULL, baseCol="gray65") {
 		
 		
 	} else {
-		plotDatLong = dat %>% gather(Variable, Value) %>% filter(!is.na(Value))
+		plotDatLong = dat %>% gather(Variable, Value) %>% filter(!is.na(Value)) %>% data.table()
+		
+		outlier_data <- plotDatLong[, find_outliers(Value), by=Variable]
+		setnames(outlier_data, "V1", "Value")
+		
 		
 		g = ggplot(data=plotDatLong, aes(x=1, y=Value)) +
 				geom_violin(fill=baseCol, colour=NA) + 
-				geom_boxplot(width=.1, size=1) + 
+				geom_boxplot(width=.1, size=1, outlier.colour=NA) + 
+				geom_point(data = outlier_data, shape=21, size=1.5, fill="black", colour=NA, alpha=.5) +
 				theme_bw() +
 				facet_wrap(~Variable, scales = "free") + 
 				theme(axis.text.x = element_blank(), 
@@ -245,7 +267,7 @@ splotDataDist <- function(dat, colNms, byCol=NULL, baseCol="gray65") {
 						axis.title.y = element_blank(),
 						axis.ticks.x=element_blank(),
 						strip.text = element_text(face="bold"))
-		
+		g
 	}
 	
 
