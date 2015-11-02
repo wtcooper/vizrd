@@ -238,7 +238,7 @@ splotDataDist <- function(dat, colNms, byCol=NULL, baseCol="gray65") {
 		g = ggplot(data=plotDatLong, aes(x=byCol, y=Value)) +
 				geom_violin(fill=baseCol, colour=NA) + 
 				geom_boxplot(width=.1, size=1, outlier.colour=NA) + 
-				geom_point(data = outlier_data, shape=21, size=1.5, fill="black", colour=NA, alpha=.5) +
+				geom_point(data = outlier_data, shape=21, size=1.5, fill="gray25", colour=NA, alpha=.2) +
 				theme_bw() +
 				facet_wrap(~Variable, scales = "free") + 
 				theme(axis.text.x = element_text(face="bold", angle = 45, hjust = 1,vjust=1), 
@@ -259,7 +259,7 @@ splotDataDist <- function(dat, colNms, byCol=NULL, baseCol="gray65") {
 		g = ggplot(data=plotDatLong, aes(x=1, y=Value)) +
 				geom_violin(fill=baseCol, colour=NA) + 
 				geom_boxplot(width=.1, size=1, outlier.colour=NA) + 
-				geom_point(data = outlier_data, shape=21, size=1.5, fill="black", colour=NA, alpha=.5) +
+				geom_point(data = outlier_data, shape=21, size=1.5, fill="gray25", colour=NA, alpha=.2) +
 				theme_bw() +
 				facet_wrap(~Variable, scales = "free") + 
 				theme(axis.text.x = element_blank(), 
