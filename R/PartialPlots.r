@@ -30,10 +30,10 @@
 #' @param colNms names of the predictors to get the values from
 #' @param CIOn whether or not to plot confidence bounds, if so assumes that predFnx passes this in 
 #' @param totPerPage Total number of figures per page (default=9)
-#' @param pdffile The file path/name to save to.
+#' @param pdfFile The file path/name to save to.
 #' @export
-splotPartialEffs <- function(mod, dat, predFnx, colNms, type="median", dWeights=rep(1,dim(dat)[1]), 
-		CIOn=T, totPerPage=9, pdffile=NULL) {
+splotPartialEffs <- function(mod, dat, predFnx, colNms, type="all", dWeights=rep(1,dim(dat)[1]), 
+		CIOn=FALSE, totPerPage=12, pdfFile=NULL) {
 	require(dplyr)
 	require(grid)
 	require(gridExtra)
@@ -83,7 +83,7 @@ splotPartialEffs <- function(mod, dat, predFnx, colNms, type="median", dWeights=
 			preds = predFnx(mod, newdata)
 			
 		} else {
-			cat("'type' argument not supported.  Use either 'median' or 'all', or leave blank for default 'median'\n")
+			cat("'type' argument not supported.  Use either 'median' or 'all', or leave blank for default 'all'\n")
 			return(NULL)
 		}
 		
@@ -125,14 +125,18 @@ splotPartialEffs <- function(mod, dat, predFnx, colNms, type="median", dWeights=
 	}
 	
 	
+	## Get variables to plot per page
 	unVars = unique(pdat$var)
-	splits = split(unVars, sort(rank(unVars) %% ceiling(length(unVars)/totPerPage)))	
+	pages = ceiling(length(unVars)/totPerPage)
+	groups = sort(rep(1:pages, totPerPage))[1:length(unVars)]
+	splits = split(unVars, groups)
+	##	splits = split(unVars, sort(rank(unVars) %% ceiling(length(unVars)/totPerPage)))	
 	
 	require(ggplot2)
-	if (is.null(pdffile)) {
+	if (is.null(pdfFile)) {
 		windows(record=T)
 	} else {
-		pdf(pdffile,width=8.5, height=11)	
+		pdf(pdfFile,width=8.5, height=11)	
 	}
 	
 	
@@ -143,9 +147,12 @@ splotPartialEffs <- function(mod, dat, predFnx, colNms, type="median", dWeights=
 		colNm = strsplit(colVar, " on ")[[1]][1]
 		if (is.factor(dat[,colNm]) | is.character(dat[,colNm]))	{
 			
-			g= ggplot(data=pdat %>% dplyr::filter(var==colVar), aes(x=x_fac, y=fit)) +
-					geom_linerange(aes(x = x_fac, ymin = lower, ymax=upper),lwd = 3, alpha=.25) +
-					geom_point(shape=21, size=6, fill="black") +
+			tdat = pdat %>% dplyr::filter(var==colVar)
+			g= ggplot(data = tdat, aes(x=x_fac, y=fit)) 
+			
+			if (CIOn) g= g + geom_linerange(aes(x = x_fac, ymin = lower, ymax=upper),lwd = 3, alpha=.25)
+			
+			g = g + geom_point(shape=21, size=6, fill="black") +
 					geom_point(shape=21, fill="white", colour="white", size=3) +
 					ggtitle(colVar) +
 					ylab("Partial Effect") +
@@ -154,7 +161,17 @@ splotPartialEffs <- function(mod, dat, predFnx, colNms, type="median", dWeights=
 							axis.title.x =element_blank(),
 							axis.title.y =element_text(size=10, face = "bold", colour = "black"),
 							axis.text.x= element_text(size=10, angle=45, hjust = 1),
-							axis.text.y= element_text(size=10, angle=90, hjust=.5))
+							axis.text.y= element_text(size=10, angle=45, hjust=1))
+			
+
+			# Bump the limits by 7.5% so geom_point won't be cut off
+			if (!CIOn) {
+				val=tdat$fit
+				rng=diff(range(val))
+				adj=rng*.075
+				g = g + expand_limits(y = c(min(val)-sign(min(val))*adj, max(val)+sign(max(val))*adj))
+			}
+			
 			
 		} else  {
 			
@@ -167,7 +184,7 @@ splotPartialEffs <- function(mod, dat, predFnx, colNms, type="median", dWeights=
 							axis.title.x =element_blank(),
 							axis.title.y =element_text(size=10, face = "bold", colour = "black"),
 							axis.text.x= element_text(size=10, angle=45, hjust = 1),
-							axis.text.y= element_text(size=10, angle=90, hjust=.5))
+							axis.text.y= element_text(size=10, angle=45, hjust=1))
 			
 			if (CIOn) g = g + geom_ribbon(aes(ymax=upper, ymin=lower), alpha=.25) 
 			
@@ -175,7 +192,7 @@ splotPartialEffs <- function(mod, dat, predFnx, colNms, type="median", dWeights=
 		g
 	}
 	
-	
+	## Make the plots for each page and arrange via grid.arrange
 	for (i in 1:length(splits)) {
 		splColNms=splits[[i]]
 		tempDat = pdat %>% dplyr::filter(var %in% splColNms)
@@ -183,6 +200,6 @@ splotPartialEffs <- function(mod, dat, predFnx, colNms, type="median", dWeights=
 		do.call(grid.arrange,c(all.ggplots)) 
 	}
 	
-	if (!is.null(pdffile)) dev.off()
+	if (!is.null(pdfFile)) dev.off()
 	
 }
