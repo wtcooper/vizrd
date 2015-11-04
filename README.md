@@ -139,7 +139,8 @@ irisFac$fac = as.factor(cut(irisFac$Sepal.Length, 3, labels = FALSE))
 
 modelFac <- train(Species~., data=irisFac, trControl=train_control, method="glmnet")
 
-splotPartialEffs(modelFac, irisFac, predFnx, colNms=names(irisFac)[c(1:4, 6)], type="all", totPerPage=15) 
+splotPartialEffs(modelFac, irisFac, predFnx, colNms=names(irisFac)[c(1:4, 6)], 
+	type="all", totPerPage=15) 
 
 
 
@@ -163,11 +164,13 @@ gamPredFnx <- function(mod, newdata) {
 
 # Plot at median value for numeric and mode value for factor/character's
 # I.e., hold covariates constant and get predictions along range of variable
-splotPartialEffs(gam.mod, dat, gamPredFnx, colNms=names(dat)[2:5], CIOn=T, type="median", totPerPage=9, pdffile=NULL) 
+splotPartialEffs(gam.mod, dat, gamPredFnx, colNms=names(dat)[2:5], CIOn=T, 
+	type="median", totPerPage=9, pdffile=NULL) 
 
 # For each value of predictor, calculate prediction as mean of predictions from all data points at that given predictor value
 # I.e., for all observed covariates value combinations, get predictions along range of variable
-splotPartialEffs(gam.mod, dat, gamPredFnx, colNms=names(dat)[2:5], CIOn=T, type="all", totPerPage=9, pdffile=NULL) 
+splotPartialEffs(gam.mod, dat, gamPredFnx, colNms=names(dat)[2:5], CIOn=T, 
+	type="all", totPerPage=9, pdffile=NULL) 
 
 ## Note: if have polynomial/interaction terms and want seperate effect 
 ##  for each (e.g., as in plot.gam()) then create model with seperate variables
@@ -177,7 +180,8 @@ dat2$x1Poly = dat2$x1*dat2$x1; dat2$x1Lin = dat2$x1
 gam.mod2 = gam(y ~ x0 + x1Lin + s(x1) + s(x1Poly) + s(x2) + offset(x3) , data = dat2)
 
 plot.gam(gam.mod2, pages=1, all.terms=T, se=1)
-splotPartialEffs(gam.mod2, dat2, gamPredFnx, colNms=names(dat2)[c(2,3,4,6,7)], CIOn=T, type="median", totPerPage=9, pdffile=NULL) 
+splotPartialEffs(gam.mod2, dat2, gamPredFnx, colNms=names(dat2)[c(2,3,4,6,7)], CIOn=T, 
+	type="median", totPerPage=9, pdffile=NULL) 
 
 
 
@@ -193,11 +197,14 @@ rfPredFnx <- function(mod, newdata) {
 	preds = as.data.frame(predict(mod, newdata=newdata, type="prob"))
 }
 
-splotPartialEffs(mod=iris.rf, dat=iris, predFnx=rfPredFnx, colNms=names(iris)[1:4], CIOn=FALSE, type="median", totPerPage=9, pdffile=NULL) 
-splotPartialEffs(mod=iris.rf, dat=iris, predFnx=rfPredFnx, colNms=names(iris)[1:4], CIOn=FALSE, type="all", totPerPage=9, pdffile=NULL) 
+splotPartialEffs(mod=iris.rf, dat=iris, predFnx=rfPredFnx, colNms=names(iris)[1:4], 
+	type="median", totPerPage=9, pdffile=NULL) 
+splotPartialEffs(mod=iris.rf, dat=iris, predFnx=rfPredFnx, colNms=names(iris)[1:4], 
+	type="all", totPerPage=9, pdffile=NULL) 
 
 # output pdf
-splotPartialEffs(mod=iris.rf, dat=iris, predFnx=rfPredFnx, colNms=names(iris)[1:4], CIOn=FALSE, type="median", totPerPage=9, pdffile="irisplots.pdf") 
+splotPartialEffs(mod=iris.rf, dat=iris, predFnx=rfPredFnx, colNms=names(iris)[1:4], 
+	type="median", totPerPage=9, pdffile="irisplots.pdf") 
 
 
 ## Regression 
@@ -215,7 +222,8 @@ rfPredFnx <- function(mod, newdata) {
 	preds = data.frame(pred=predict(mod, newdata=newdata))
 }
 
-splotPartialEffs(rf.model, Data, rfPredFnx, colNms=c("a", "b", "c"), CIOn=FALSE, type="median", totPerPage=9, pdffile=NULL) 
+splotPartialEffs(rf.model, Data, rfPredFnx, colNms=c("a", "b", "c"), 
+	type="median", totPerPage=9, pdffile=NULL) 
 
 ```
 
@@ -230,7 +238,7 @@ dat <- gamSim(5,n=200,scale=2)
 mod <- gam(y ~ x1+ + s(x1) + s(I(x1^2)) + s(x2) + offset(x3) , data = dat)
 
 splotGAMSplines(mod)
-splotGAMSplines(mod, rug=TRUE, residuals=TRUE)   #add rug to x-axis and residuals as in plot.gam()
+splotGAMSplines(mod, rug=TRUE, residuals=TRUE)   #add rug to x-axis and residuals 
 ```
 
 
