@@ -5,18 +5,21 @@
 #' 
 #' @param df data frame 
 #' @export
-splotVarImpBase <- function(df) {
-	require(ggplot2)
+splotVarImpBase <- function(df, xlabel) {
 	
+	## Note: with coord_flip(), ylab() refers to y variable (aes(y=xxx)), but 
+	## in the theme(), the xxx.y settings are for x variable (flipped y-axis)
 	ggplot(df, aes(x=name, y=importance, width=.4)) +
 			geom_bar(stat='identity', fill="steelblue") +
-			xlab("Variable Importance") +
+			ylab(xlabel) +
 			theme_bw() +
-			theme(axis.title.x =element_blank(),
-					axis.title.y =element_text(size=12, face = "bold"),
+			theme(axis.title.y =element_blank(),
+					axis.title.x =element_text(size=12, face = "bold"),
+					axis.text.x =element_text(angle=45, hjust=1),
 					strip.text = element_text(size=10, face = "bold")) +
 			coord_flip() +
 			facet_wrap(~response, nrow = 1)
+	
 }
 
 
@@ -29,20 +32,21 @@ splotVarImpBase <- function(df) {
 #' @param responseOrder the order of responses if multinomial
 #' @return plot
 #' @export
-splotVarImp <- function(name, importance, numVars=25, responseOrder=NULL) {
+splotVarImp <- function(name, importance, numVars=25, responseOrder=NULL, xlabel="Variable Importance") {
 	require(tidyr)
-	require(ggplot2)
-	
-	df = data.frame(name=name, Importance=importance)
+	if (dim(importance)[2]==1) {
+		df= importance
+		df$name=name
+	} else {
+		df = data.frame(name=name, importance)
+	}
 	df$name=factor(df$name,levels=rev(name))
 	if (length(name)>numVars) df=df[1:numVars, ]
 	df = df %>% gather(response, importance, -name)
 	if (!is.null(responseOrder)) df$response=factor(df$response, levels=responseOrder)
 	else df$response=factor(df$response)
-	imp=splotVarImpBase(df)
-	imp
+	imp=splotVarImpBase(df, xlabel)
 }
-
 
 
 
