@@ -118,8 +118,33 @@ using type="median".  Note: if you're interested in partial effects for random f
 package which provides excellent functionality.
 
 ```R
+### Using caret ####
 
-### GAM ###
+library(caret)
+data(iris)
+
+train_control <- trainControl(method="cv", number=10)
+model <- train(Species~., data=iris, trControl=train_control, method="glmnet")
+
+predFnx <- function(mod, newdata) predict(mod, newdata=newdata, type="prob")
+
+splotPartialEffs(model, iris, predFnx, colNms=names(iris)[1:4], type="all") 
+
+
+
+### As above but with factor variable ####
+
+irisFac = iris
+irisFac$fac = as.factor(cut(irisFac$Sepal.Length, 3, labels = FALSE))
+
+modelFac <- train(Species~., data=irisFac, trControl=train_control, method="glmnet")
+
+splotPartialEffs(modelFac, irisFac, predFnx, colNms=names(irisFac)[c(1:4, 6)], type="all", totPerPage=15) 
+
+
+
+### GAM with CIs ###
+
 library(mgcv)
 dat <- gamSim(5,n=200,scale=2)
 gam.mod <- gam(y ~ x0 + x1 + s(x1) + s(I(x1^2)) + s(x2) + offset(x3) , data = dat)
