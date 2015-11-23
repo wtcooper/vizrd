@@ -64,7 +64,7 @@ splotDataHeatmap <- function(dat, colNms, numObs=75) {
 #' @param numObs the top n observations to include in the plot
 #' @param byCol by group column name by which to facet the plots
 #' @export
-splotDataPoints <- function(dat, colNms, numObs=NULL, byCol=NULL) {
+splotDataPoints <- function(dat, colNms=names(dat), numObs=NULL, byCol=NULL) {
 	require(tidyr)
 	require(dplyr)
 	require(ggplot2)	
@@ -197,7 +197,7 @@ splotDataHist <- function(dat, colNm, numObs=NULL, binSize=1, minVal=NULL, maxVa
 #' @param violCol the colour of the violin
 #' @param outAlpha the transparency for the boxplot outliers
 #' @export
-splotDataDist <- function(dat, colNms, byCol=NULL, violCol="gray70", outAlpha=0.5) {
+splotDataDist <- function(dat, colNms=names(dat), byCol=NULL, violCol="gray70", outAlpha=0.5) {
 	require(tidyr)
 	require(dplyr)
 	require(ggplot2)	
