@@ -7,7 +7,7 @@ of the name, importance, and response (target levels, faceted
 if multinomial).  Note: user must sort and set up the data frame
 properly depending on the model output.}
 \usage{
-splotVarImpBase(df)
+splotVarImpBase(df, xlabel)
 }
 \arguments{
 \item{df}{data frame}

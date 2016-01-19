@@ -8,7 +8,7 @@ the number of observations and variables since it'll save the PDF
 as vector graphics so each point will be rendered.}
 \usage{
 splotPointsToPDF(dat, colNms = NULL, numObs = NULL, totPerPage = 9,
-  pdffile)
+  pdfFile)
 }
 \arguments{
 \item{dat}{dataset}
@@ -17,7 +17,7 @@ splotPointsToPDF(dat, colNms = NULL, numObs = NULL, totPerPage = 9,
 
 \item{totPerPage}{Total number of figures per page (default=9)}
 
-\item{pdffile}{The file path/name to save to.}
+\item{pdfFile}{The file path/name to save to.}
 
 \item{colNm}{the column you want to plot}
 }

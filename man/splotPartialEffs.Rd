@@ -2,21 +2,21 @@
 % Please edit documentation in R/PartialPlots.r
 \name{splotPartialEffs}
 \alias{splotPartialEffs}
-\title{Plots partial effects plots for any model type, based on the provided predict function (predFnx).  Partial
+\title{Partial effects plots for any model type, based on the provided predict function (predFnx).  Partial
 effects are calculated by specifying the 'type' argument to be either using either (1) type='median': the median
 of numeric covariates and most common level of factor covariates; or (2) type='all': the approach in
-randomForest::partialPlot where the full dataset is used to calculate a mean prediction for any given
-variable value. Note if using type='all', the method will run painfully slow for large datasets and large
-ensembles of trees, but will give a more accurate representation, given the data.}
+randomForest::partialPlot where the supplied dataset is used to calculate a mean prediction for any given
+variable value. Note if using type='all', the method will run slow for large datasets and large
+ensembles of trees, but will give a more accurate representation, particularly for tree-based methods and/or
+lots of dummy variables.}
 \usage{
-splotPartialEffs(mod, dat, predFnx, colNms, type = "median",
-  dWeights = rep(1, dim(dat)[1]), CIOn = T, totPerPage = 9,
-  pdffile = NULL)
+splotPartialEffs(mod, dat, predFnx, colNms, type = "all", dWeights = rep(1,
+  dim(dat)[1]), CIOn = FALSE, totPerPage = 12, pdfFile = NULL)
 }
 \arguments{
 \item{mod}{model object}
 
-\item{dat}{the dataset the model was built on, in order to get mean/median values}
+\item{dat}{the dataset (or sample dataset) to get median values (type='median') or make predictions directly on (type='all')}
 
 \item{predFnx}{a prediction function with arguments 'function(mod, newdata)' - must return numeric values.
 If CIOn=TRUE, column names for returned data.frame should be [colNm]_lower and [colNm]_upper, e.g.,
@@ -31,7 +31,7 @@ all=use full datasaet for covariates}
 
 \item{totPerPage}{Total number of figures per page (default=9)}
 
-\item{pdffile}{The file path/name to save to.}
+\item{pdfFile}{The file path/name to save to.}
 
 \item{colNms}{names of the predictors to get the values from}
 }
@@ -41,7 +41,7 @@ equal to .Machine$double.eps prior to logging.  Subjective choice of what to ass
 the shape of the resulting partial effect plot, so results form randomForest::partialPlot should be interpreted
 cautiously for datasets where classification probabilities contain a substantial number of estimated 0 values.  The
 approach used here is to plot whatever is passed through the predFnx, so if pass probabilities, it'll show the
-partial effect on the probability directly.
+partial effect on the probability scale directly.
 }
 \details{
 Here the key is to pass an approriate user-defined predFnx, where the function must return

@@ -4,12 +4,14 @@
 \alias{splotObsPred}
 \title{Observed versus predicted values with residuals.}
 \usage{
-splotObsPred(obs, pred)
+splotObsPred(obs, pred, expandFac = 0.25)
 }
 \arguments{
 \item{obs}{observed values}
 
 \item{pred}{predicted values}
+
+\item{expandFac}{scalar to expand the axes (for kernel to fill correctly)}
 }
 \description{
 Observed versus predicted values with residuals.

@@ -7,19 +7,23 @@ document.  Note: this can be a very large document depending on
 the number of observations and variables since it'll save the PDF
 as vector graphics so each point will be rendered.}
 \usage{
-splotDistToPDF(dat, colNms = NULL, byCol = NULL, baseCol = "gray65",
-  totPerPage = 9, pdffile)
+splotDistToPDF(dat, colNms = NULL, byCol = NULL, violCol = "gray70",
+  outAlpha = 0.5, totPerPage = 9, pdfFile)
 }
 \arguments{
 \item{dat}{dataset}
 
+\item{byCol}{by group column name by which to facet the plots}
+
+\item{violCol}{the colour of the violin}
+
+\item{outAlpha}{the transparency for the boxplot outliers}
+
 \item{totPerPage}{Total number of figures per page (default=9)}
 
-\item{pdffile}{The file path/name to save to.}
+\item{pdfFile}{The file path/name to save to.}
 
 \item{colNm}{the column you want to plot}
-
-\item{numObs}{The top n observations to include in the plot}
 }
 \description{
 Exports the raw data point plots (splotDataPoints()) to a PDF

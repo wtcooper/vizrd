@@ -4,7 +4,7 @@
 \alias{splotDataPoints}
 \title{Plots raw data points (y-axis = values, x-axis = row #).}
 \usage{
-splotDataPoints(dat, colNms, numObs = NULL, byCol = NULL)
+splotDataPoints(dat, colNms = names(dat), numObs = NULL, byCol = NULL)
 }
 \arguments{
 \item{dat}{dataset}

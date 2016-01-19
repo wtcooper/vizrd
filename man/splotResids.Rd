@@ -4,12 +4,14 @@
 \alias{splotResids}
 \title{Plots the standardized residuals versus the predicted values.}
 \usage{
-splotResids(obs, pred)
+splotResids(obs, pred, expandFac = 0.25)
 }
 \arguments{
 \item{obs}{observed values}
 
 \item{pred}{predicted values}
+
+\item{expandFac}{scalar to expand the axes (for kernel to fill correctly)}
 }
 \description{
 Plots the standardized residuals versus the predicted values.

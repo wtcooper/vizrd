@@ -4,7 +4,8 @@
 \alias{splotVarImp}
 \title{Bar plot of variable importances.}
 \usage{
-splotVarImp(name, importance, numVars = 25, responseOrder = NULL)
+splotVarImp(name, importance, numVars = 25, responseOrder = NULL,
+  xlabel = "Variable Importance")
 }
 \arguments{
 \item{name}{names of variables (sorted by order of plot, high to low)}

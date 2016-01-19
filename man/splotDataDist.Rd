@@ -4,7 +4,8 @@
 \alias{splotDataDist}
 \title{Plots the distribution for a given column(s) or for a column by group.}
 \usage{
-splotDataDist(dat, colNms, byCol = NULL, baseCol = "gray65")
+splotDataDist(dat, colNms = names(dat), byCol = NULL, violCol = "gray70",
+  outAlpha = 0.5)
 }
 \arguments{
 \item{dat}{dataset}
@@ -13,7 +14,9 @@ splotDataDist(dat, colNms, byCol = NULL, baseCol = "gray65")
 
 \item{byCol}{by group column name by which to facet the plots}
 
-\item{numObs}{the top n observations to include in the plot}
+\item{violCol}{the colour of the violin}
+
+\item{outAlpha}{the transparency for the boxplot outliers}
 }
 \description{
 Plots the distribution for a given column(s) or for a column by group.
