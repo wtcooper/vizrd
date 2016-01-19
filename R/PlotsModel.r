@@ -436,23 +436,24 @@ splotLift <- function (prob, obs, posLabel, negLabel) {
 #' 
 #' @param obs observed values
 #' @param pred predicted values
+#' @param expandFac scalar to expand the axes (for kernel to fill correctly)
 #' @export
-splotResids <- function (obs, pred) {
+splotResids <- function (obs, pred, expandFac = .25) {
 	require(ggplot2)
 	
 	df=data.frame(obs=obs, pred=pred, resid=obs-pred)
 	df$stdres = df$resid/sd(df$resid)
 	
-	xlims=c(min(df$pred), max(df$pred))
-	ylims=c(min(df$stdres), max(df$stdres))
-	
+	## Set up an expand factor 
+	xlims = data.frame(min= min(df$pred)-expandFac*diff(range(df$pred)), max = max(df$pred)+expandFac*diff(range(df$pred)))
+	ylims = data.frame(min= min(df$stdres)-expandFac*diff(range(df$stdres)), max = max(df$stdres)+expandFac*diff(range(df$stdres)))
 	
 	g = ggplot(df,aes(x=pred,y=stdres))+
 			stat_density2d(aes(alpha=..level..),alpha=.05, geom="polygon",fill="darkblue") +
 			geom_point(fill="darkblue", colour=NA,shape=21, size=4, alpha=.5)+
 			scale_alpha_continuous(guide=FALSE)+ #
-			scale_x_continuous("Predicted",expand=c(0.2, 0))+
-			scale_y_continuous("Standardized Residuals",expand=c(0.2, 0))+ 
+			scale_x_continuous("Predicted", limits=c(xlims$min, xlims$max))+
+			scale_y_continuous("Standardized Residuals", limits=c(ylims$min, ylims$max))+ 
 			theme_bw() +
 			theme(axis.title = element_text(face="bold"))  
 	g
@@ -494,20 +495,25 @@ splotQQNorm <- function (obs, pred) {
 #' 
 #' @param obs observed values
 #' @param pred predicted values
+#' @param expandFac scalar to expand the axes (for kernel to fill correctly)
 #' @export
-splotObsPred = function(obs, pred) {
+splotObsPred = function(obs, pred, expandFac = .25) {
 	require(ggplot2)
 	
 	df= data.frame(obs=obs, pred=pred, resid=obs-pred)
 	df$stdres = abs(df$resid)/sd(df$resid)
+
+	## Set up an expand factor - used to use 
+	xlims = data.frame(min= min(df$obs)-expandFac*diff(range(df$obs)), max = max(df$obs)+expandFac*diff(range(df$obs)))
+	ylims = data.frame(min= min(df$pred)-expandFac*diff(range(df$pred)), max = max(df$pred)+expandFac*diff(range(df$pred)))
 	
 	g = ggplot(df,aes(x=obs,y=pred, fill=stdres))+
 			stat_density2d(aes(alpha=..level..),alpha=.075, geom="polygon",fill="darkblue") +
 			scale_alpha_continuous(guide=FALSE)+ #
 			geom_point(shape=21, size=4, colour=NA, alpha=.75) +
 			scale_fill_gradient("Standardized\nResiduals\n(absolute val.)",low = "darkblue", high = "orangered") +
-			scale_x_continuous("Observed",expand=c(0.2, 0)) + 
-			scale_y_continuous("Predicted",expand=c(0.2, 0)) + 
+			scale_x_continuous("Observed", limits=c(xlims$min, xlims$max)) +  
+			scale_y_continuous("Predicted", limits=c(ylims$min, ylims$max)) +  
 			theme_bw() +
 			theme(axis.title = element_text(face="bold"))  
 	
