@@ -197,7 +197,7 @@ splotDataHist <- function(dat, colNm, numObs=NULL, binSize=1, minVal=NULL, maxVa
 #' @param violCol the colour of the violin
 #' @param outAlpha the transparency for the boxplot outliers
 #' @export
-splotDataDist <- function(dat, colNms=names(dat), byCol=NULL, violCol="gray70", outAlpha=0.5) {
+splotDataDist <- function(dat, colNms=NULL, byCol=NULL, violCol="gray70", outAlpha=0.5) {
 	require(tidyr)
 	require(dplyr)
 	require(ggplot2)	
@@ -207,12 +207,13 @@ splotDataDist <- function(dat, colNms=names(dat), byCol=NULL, violCol="gray70", 
 	if (!("data.table" %in% class(dat))) dat = dat %>% data.table()
 	
 	## get just the good columns
-	dat = dat %>% select(one_of(colNms, byCol))
+	if (!is.null(colNms)) dat = dat %>% select(one_of(colNms, byCol))
 	
-	## remove character and factor columns
-	temp = data.frame(head(dat))
-	gdNms = names(temp[, !sapply(temp, function(x) is.character(x) | is.factor(x) ), drop=FALSE])
+	## remove character, factor, and single value columns
+	is.uni <- function(x) length(unique(x))==1
+	gdNms = names(dat[, !sapply(dat, function(x) is.character(x) | is.factor(x) | is.uni(x)), drop=FALSE])
 	dat = dat %>% select(one_of(gdNms, byCol))
+	
 	
 	
 	
@@ -338,10 +339,9 @@ splotDistToPDF <- function(dat, colNms=NULL, byCol=NULL, violCol="gray70", outAl
 	
 	if (!is.null(colNms)) dat = dat %>% select(one_of(colNms, byCol))
 	
-	## remove character and factor columns
-	temp = data.frame(head(dat))
-	gdNms = names(temp[, !sapply(temp, function(x) is.character(x) | is.factor(x) )])
-	gdNms = names(temp[, sapply(temp, is.numeric)])
+	## remove character, factor, and single value columns
+	is.uni <- function(x) length(unique(x))==1
+	gdNms = names(dat[, !sapply(dat, function(x) is.character(x) | is.factor(x) | is.uni(x))])
 	dat = dat %>% select(one_of(gdNms, byCol))
 	
 	numPages=ceiling(length(gdNms)/totPerPage)
