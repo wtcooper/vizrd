@@ -238,7 +238,7 @@ dat <- gamSim(5,n=200,scale=2)
 mod <- gam(y ~ x1+ + s(x1) + s(I(x1^2)) + s(x2) + offset(x3) , data = dat)
 
 splotGAMSplines(mod)
-splotGAMSplines(mod, rug=TRUE, residuals=TRUE)   #add rug to x-axis and residuals 
+splotGAMSplines(mod, rug=TRUE, residuals=TRUE)   # add rug to x-axis and residuals 
 ```
 
 
