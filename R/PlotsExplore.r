@@ -5,7 +5,7 @@
 #' @param colNms a vector of column names you want to include (all factor or character columns removed)
 #' @param numObs The top n observations to include in the plot
 #' @export
-splotDataHeatmap <- function(dat, colNms, numObs=75) {
+plotDataHeatmap <- function(dat, colNms, numObs=75) {
 	require(dplyr)
 	require(tidyr)
 	require(ggplot2)	
@@ -64,7 +64,7 @@ splotDataHeatmap <- function(dat, colNms, numObs=75) {
 #' @param numObs the top n observations to include in the plot
 #' @param byCol by group column name by which to facet the plots
 #' @export
-splotDataPoints <- function(dat, colNms=names(dat), numObs=NULL, byCol=NULL) {
+plotDataPoints <- function(dat, colNms=names(dat), numObs=NULL, byCol=NULL) {
 	require(tidyr)
 	require(dplyr)
 	require(ggplot2)	
@@ -116,9 +116,9 @@ splotDataPoints <- function(dat, colNms=names(dat), numObs=NULL, byCol=NULL) {
 	
 	
 	
-	g = ggplot(data=plotDatLong, aes(x=obs, y=Value, fill=StdDeviations)) +
-			geom_point(shape=21, size=4, colour=NA, alpha=.75) +
-			scale_fill_gradient(low = "darkblue", high = "orangered") +
+	g = ggplot(data=plotDatLong, aes(x=obs, y=Value, colour=StdDeviations)) +
+			geom_point(shape=16, size=4, alpha=.75) +
+			scale_colour_gradient(low = "darkblue", high = "orangered") +
 			xlab("Observation") +
 			theme_bw() +
 			theme(strip.text= element_text(face="bold"), axis.title = element_text(face="bold"))
@@ -148,7 +148,7 @@ splotDataPoints <- function(dat, colNms=names(dat), numObs=NULL, byCol=NULL) {
 #' @param maxVal The maximum value to include
 #' @param byCol by group column name by which to facet the plots
 #' @export
-splotDataHist <- function(dat, colNm, numObs=NULL, binSize=1, minVal=NULL, maxVal=NULL, byCol=NULL) {
+plotDataHist <- function(dat, colNm, numObs=NULL, binSize=1, minVal=NULL, maxVal=NULL, byCol=NULL) {
 	require(dplyr)
 	require(ggplot2)	
 	
@@ -197,7 +197,7 @@ splotDataHist <- function(dat, colNm, numObs=NULL, binSize=1, minVal=NULL, maxVa
 #' @param violCol the colour of the violin
 #' @param outAlpha the transparency for the boxplot outliers
 #' @export
-splotDataDist <- function(dat, colNms=NULL, byCol=NULL, violCol="gray70", outAlpha=0.5) {
+plotDataDist <- function(dat, colNms=NULL, byCol=NULL, violCol="gray70", outAlpha=0.5) {
 	require(tidyr)
 	require(dplyr)
 	require(ggplot2)	
@@ -241,7 +241,7 @@ splotDataDist <- function(dat, colNms=NULL, byCol=NULL, violCol="gray70", outAlp
 		g = ggplot(data=plotDatLong, aes(x=byCol, y=Value)) +
 				geom_violin(fill=violCol, colour=NA) + 
 				geom_boxplot(width=.1, size=1, colour="gray25", outlier.colour=NA) + 
-				geom_point(data = outlier_data, shape=21, size=2, fill="gray25", colour=NA, alpha=outAlpha) +
+				geom_point(data = outlier_data, shape=16, size=2, colour="gray25", alpha=outAlpha) +
 				theme_bw() +
 				facet_wrap(~Variable, scales = "free") + 
 				theme(axis.text.x = element_text(face="bold", angle = 45, hjust = 1,vjust=1), 
@@ -262,7 +262,7 @@ splotDataDist <- function(dat, colNms=NULL, byCol=NULL, violCol="gray70", outAlp
 		g = ggplot(data=plotDatLong, aes(x=1, y=Value)) +
 				geom_violin(fill=violCol, colour=NA) + 
 				geom_boxplot(width=.1, size=1, colour="gray25", outlier.colour=NA) + 
-				geom_point(data = outlier_data, shape=21, size=2, fill="gray25", colour=NA, alpha=outAlpha) +
+				geom_point(data = outlier_data, shape=16, size=2, colour="gray25", alpha=outAlpha) +
 				theme_bw() +
 				facet_wrap(~Variable, scales = "free") + 
 				theme(axis.text.x = element_blank(), 
@@ -281,7 +281,7 @@ splotDataDist <- function(dat, colNms=NULL, byCol=NULL, violCol="gray70", outAlp
 
 
 
-#' Exports the raw data point plots (splotDataPoints()) to a PDF
+#' Exports the raw data point plots (plotDataPoints()) to a PDF
 #' document.  Note: this can be a very large document depending on
 #' the number of observations and variables since it'll save the PDF
 #' as vector graphics so each point will be rendered.  
@@ -292,7 +292,7 @@ splotDataDist <- function(dat, colNms=NULL, byCol=NULL, violCol="gray70", outAlp
 #' @param totPerPage Total number of figures per page (default=9)
 #' @param pdfFile The file path/name to save to.
 #' @export
-splotPointsToPDF <- function(dat, colNms=NULL, numObs=NULL, totPerPage=9, pdfFile) {
+plotPointsToPDF <- function(dat, colNms=NULL, numObs=NULL, totPerPage=9, pdfFile) {
 	
 	if (!is.null(colNms)) dat = dat %>% select(one_of(colNms))
 	
@@ -311,7 +311,7 @@ splotPointsToPDF <- function(dat, colNms=NULL, numObs=NULL, totPerPage=9, pdfFil
 	
 	for (i in 1:length(splits)) {
 		colNmTemp=splits[[i]]
-		splotDataPoints(dat, colNms=colNmTemp)
+		plotDataPoints(dat, colNms=colNmTemp)
 		
 	}
 	dev.off()
@@ -322,7 +322,7 @@ splotPointsToPDF <- function(dat, colNms=NULL, numObs=NULL, totPerPage=9, pdfFil
 
 
 
-#' Exports the raw data point plots (splotDataPoints()) to a PDF
+#' Exports the raw data point plots (plotDataPoints()) to a PDF
 #' document.  Note: this can be a very large document depending on
 #' the number of observations and variables since it'll save the PDF
 #' as vector graphics so each point will be rendered.  
@@ -335,7 +335,7 @@ splotPointsToPDF <- function(dat, colNms=NULL, numObs=NULL, totPerPage=9, pdfFil
 #' @param totPerPage Total number of figures per page (default=9)
 #' @param pdfFile The file path/name to save to.
 #' @export
-splotDistToPDF <- function(dat, colNms=NULL, byCol=NULL, violCol="gray70", outAlpha=0.5, totPerPage=9, pdfFile) {
+plotDistToPDF <- function(dat, colNms=NULL, byCol=NULL, violCol="gray70", outAlpha=0.5, totPerPage=9, pdfFile) {
 	
 	if (!is.null(colNms)) dat = dat %>% select(one_of(colNms, byCol))
 	
@@ -353,7 +353,7 @@ splotDistToPDF <- function(dat, colNms=NULL, byCol=NULL, violCol="gray70", outAl
 	
 	for (i in 1:length(splits)) {
 		colNmTemp=splits[[i]]
-		splotDataDist(dat, colNms=colNmTemp, byCol=byCol, violCol=violCol, outAlpha=outAlpha)
+		plotDataDist(dat, colNms=colNmTemp, byCol=byCol, violCol=violCol, outAlpha=outAlpha)
 	}
 	dev.off()
 }

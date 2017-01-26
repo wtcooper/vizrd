@@ -5,7 +5,7 @@
 #' 
 #' @param df data frame 
 #' @export
-splotVarImpBase <- function(df, xlabel) {
+plotVarImpBase <- function(df, xlabel) {
 	
 	## Note: with coord_flip(), ylab() refers to y variable (aes(y=xxx)), but 
 	## in the theme(), the xxx.y settings are for x variable (flipped y-axis)
@@ -32,7 +32,7 @@ splotVarImpBase <- function(df, xlabel) {
 #' @param responseOrder the order of responses if multinomial
 #' @return plot
 #' @export
-splotVarImp <- function(name, importance, numVars=25, responseOrder=NULL, xlabel="Variable Importance") {
+plotVarImp <- function(name, importance, numVars=25, responseOrder=NULL, xlabel="Variable Importance") {
 	require(tidyr)
 	if (dim(importance)[2]==1) {
 		df= importance
@@ -45,7 +45,7 @@ splotVarImp <- function(name, importance, numVars=25, responseOrder=NULL, xlabel
 	df = df %>% gather(response, importance, -name)
 	if (!is.null(responseOrder)) df$response=factor(df$response, levels=responseOrder)
 	else df$response=factor(df$response)
-	imp=splotVarImpBase(df, xlabel)
+	imp=plotVarImpBase(df, xlabel)
 }
 
 
@@ -58,7 +58,7 @@ splotVarImp <- function(name, importance, numVars=25, responseOrder=NULL, xlabel
 #' @param negLabel 'negative' label
 #' @param probSeq the probability threshold sequence to use
 #' @export
-splotCMProbs <- function(prob, obs, posLabel, negLabel, 
+plotCMProbs <- function(prob, obs, posLabel, negLabel, 
 		probSeq=seq(0.005,0.995, by=0.005)) {
 	require(RColorBrewer)
 	require(ggplot2)
@@ -86,7 +86,7 @@ splotCMProbs <- function(prob, obs, posLabel, negLabel,
 	diff=posDF$cut[5]-posDF$cut[1]
 	
 	# Get max cut beyond which all is the same
-	posDFTemp = posDF %>% select(-Prediction) %>% distinct(Reference, Freq)
+	posDFTemp = posDF %>% select(-Prediction) %>% distinct(Reference, Freq, .keep_all=T)
 	posDF = posDF %>% filter(cut<=max(posDFTemp$cut))
 	xlims=c(min(posDF$cut), max(posDF$cut))
 	
@@ -121,7 +121,7 @@ splotCMProbs <- function(prob, obs, posLabel, negLabel,
 #' @param negLabel 'negative' label
 #' @param probSeq the probability threshold sequence to use
 #' @export
-splotTPFPProbs <- function(prob, obs, posLabel, negLabel, probSeq=seq(0.05,0.95, by=0.05)) {
+plotTPFPProbs <- function(prob, obs, posLabel, negLabel, probSeq=seq(0.05,0.95, by=0.05)) {
 	require(ggplot2)
 	require(dplyr)
 	
@@ -216,7 +216,7 @@ iplotROC <- function(prob, obs) {
 #' @param prob predicted probability 
 #' @param obs observed labels
 #' @export
-splotROC <- function(prob, obs) {
+plotROC <- function(prob, obs) {
 	require(ROCR)
 	require(Hmisc)
 	require(ggplot2)
@@ -263,7 +263,7 @@ splotROC <- function(prob, obs) {
 #' @param pred predicted labels.
 #' @param obs observed labels.
 #' @export
-splotCM <- function (pred, obs) {
+plotCM <- function (pred, obs) {
 	require(caret)
 	require(RColorBrewer)
 	require(ggplot2)
@@ -301,62 +301,62 @@ splotCM <- function (pred, obs) {
 #' @param negLabel 'negative' label
 #' @param probSeq the probability threshold sequence to use
 #' @export
-splotCMSeq <- function (prob, obs, posLabel, negLabel, probSeq=seq(0.1,0.9, by=0.1)) {
-  require(caret)
-  require(RColorBrewer)
-  
-  mat=NULL
-  vals=NULL
-  for (cut in probSeq) {
-    pred = ifelse(prob >= cut, posLabel, negLabel)
-    pred = factor(pred, levels=c(negLabel, posLabel))
-    if (is.null(mat)) {
-      CM= confusionMatrix(pred, obs, positive=posLabel)
-      mat=CM$table
-      mat=as.data.frame(mat)
-      mat$Cutoff=cut
-      
-      vals=as.data.frame(t(CM$byClass))
-      vals$Cutoff=cut
-    } else {
-      CM= confusionMatrix(pred, obs, positive=posLabel)
-      matt=CM$table
-      matt=as.data.frame(matt)
-      matt$Cutoff=cut
-      mat = rbind(mat, matt)
-      
-      valst=as.data.frame(t(CM$byClass))
-      valst$Cutoff=cut
-      vals = rbind(vals, valst)			
-    }
-  }
-  
-  levs = length(unique(mat$Reference))
-  maxVal = max(mat$Freq)
-  
-  
-  vals$x=posLabel
-  vals$y=1.2*maxVal	
-  vals$label = paste(vals$Cutoff,": TP=",round(vals$Sensitivity,2),", TN=", round(vals$Specificity,2), sep="")
-  vals$Prediction=negLabel
-  
-  mat = mat %>% left_join(vals %>% dplyr::select(Cutoff, label), by="Cutoff")
-  
-  g = ggplot(mat,aes(Reference,y=as.numeric(Freq), fill=Prediction)) + 
-      geom_bar(stat = "identity", position = "stack", color="gray50") +
-      xlab("") +
-      ylab("Frequency")+
-      theme_bw()+ 
-      scale_fill_manual("Predicted",values = brewer.pal(levs+1,"YlGnBu")[c(2:(levs+1))])+
-      guides(fill = guide_legend(override.aes = list(colour = NULL)))+
-      theme(legend.key = element_rect(colour = "gray50"),
-          strip.text= element_text(size=8, face="bold"),
-          axis.title.x =element_blank(),
-          axis.title.y =element_text(size=12, face = "bold", colour = "black"),
-          axis.text.x= element_text(size=10, angle=45, hjust = 1),
-          axis.text.y= element_text(size=10, angle=90, hjust=.5)) +
-      facet_wrap(~label)
-  g	
+plotCMSeq <- function (prob, obs, posLabel, negLabel, probSeq=seq(0.1,0.9, by=0.1)) {
+	require(caret)
+	require(RColorBrewer)
+	
+	mat=NULL
+	vals=NULL
+	for (cut in probSeq) {
+		pred = ifelse(prob >= cut, posLabel, negLabel)
+		pred = factor(pred, levels=c(negLabel, posLabel))
+		if (is.null(mat)) {
+			CM= confusionMatrix(pred, obs, positive=posLabel)
+			mat=CM$table
+			mat=as.data.frame(mat)
+			mat$Cutoff=cut
+			
+			vals=as.data.frame(t(CM$byClass))
+			vals$Cutoff=cut
+		} else {
+			CM= confusionMatrix(pred, obs, positive=posLabel)
+			matt=CM$table
+			matt=as.data.frame(matt)
+			matt$Cutoff=cut
+			mat = rbind(mat, matt)
+			
+			valst=as.data.frame(t(CM$byClass))
+			valst$Cutoff=cut
+			vals = rbind(vals, valst)			
+		}
+	}
+	
+	levs = length(unique(mat$Reference))
+	maxVal = max(mat$Freq)
+	
+	
+	vals$x=posLabel
+	vals$y=1.2*maxVal	
+	vals$label = paste(vals$Cutoff,": TP=",round(vals$Sensitivity,2),", TN=", round(vals$Specificity,2), sep="")
+	vals$Prediction=negLabel
+	
+	mat = mat %>% left_join(vals %>% dplyr::select(Cutoff, label), by="Cutoff")
+	
+	g = ggplot(mat,aes(Reference,y=as.numeric(Freq), fill=Prediction)) + 
+			geom_bar(stat = "identity", position = "stack", color="gray50") +
+			xlab("") +
+			ylab("Frequency")+
+			theme_bw()+ 
+			scale_fill_manual("Predicted",values = brewer.pal(levs+1,"YlGnBu")[c(2:(levs+1))])+
+			guides(fill = guide_legend(override.aes = list(colour = NULL)))+
+			theme(legend.key = element_rect(colour = "gray50"),
+					strip.text= element_text(size=8, face="bold"),
+					axis.title.x =element_blank(),
+					axis.title.y =element_text(size=12, face = "bold", colour = "black"),
+					axis.text.x= element_text(size=10, angle=45, hjust = 1),
+					axis.text.y= element_text(size=10, angle=90, hjust=.5)) +
+			facet_wrap(~label)
+	g	
 }
 
 
@@ -370,7 +370,7 @@ splotCMSeq <- function (prob, obs, posLabel, negLabel, probSeq=seq(0.1,0.9, by=0
 #' @param negLabel 'negative' label
 #' @param probSeq the probability threshold sequence to use
 #' @export
-splotLift <- function (prob, obs, posLabel, negLabel) {
+plotLift <- function (prob, obs, posLabel, negLabel) {
 	require(dplyr)
 	require(Hmisc)
 	require(ggplot2)
@@ -438,7 +438,7 @@ splotLift <- function (prob, obs, posLabel, negLabel) {
 #' @param pred predicted values
 #' @param expandFac scalar to expand the axes (for kernel to fill correctly)
 #' @export
-splotResids <- function (obs, pred, expandFac = .25) {
+plotResids <- function (obs, pred, expandFac = .25) {
 	require(ggplot2)
 	
 	df=data.frame(obs=obs, pred=pred, resid=obs-pred)
@@ -450,7 +450,7 @@ splotResids <- function (obs, pred, expandFac = .25) {
 	
 	g = ggplot(df,aes(x=pred,y=stdres))+
 			stat_density2d(aes(alpha=..level..),alpha=.05, geom="polygon",fill="darkblue") +
-			geom_point(fill="darkblue", colour=NA,shape=21, size=4, alpha=.5)+
+			geom_point(colour="darkblue", shape=16, size=4, alpha=.5)+
 			scale_alpha_continuous(guide=FALSE)+ #
 			scale_x_continuous("Predicted", limits=c(xlims$min, xlims$max))+
 			scale_y_continuous("Standardized Residuals", limits=c(ylims$min, ylims$max))+ 
@@ -468,7 +468,7 @@ splotResids <- function (obs, pred, expandFac = .25) {
 #' @param obs observed values
 #' @param pred predicted values
 #' @export
-splotQQNorm <- function (obs, pred) {
+plotQQNorm <- function (obs, pred) {
 	require(ggplot2)
 	
 	df=data.frame(obs=obs, pred=pred, resid=obs-pred)
@@ -481,7 +481,7 @@ splotQQNorm <- function (obs, pred) {
 	int <- y[1L] - slope * x[1L]
 	
 	g = ggplot(df, aes(sample = resid)) + 
-			stat_qq(shape=21, colour=NA, fill="darkblue", size=5,alpha=.5) +
+			stat_qq(shape=16, colour="darkblue", size=5,alpha=.5) +
 			xlab("Normal Quantiles") +
 			ylab("Residuals")+
 			geom_abline(slope = slope, intercept = int,colour="darkblue", linetype="dashed", size=1) +
@@ -497,21 +497,21 @@ splotQQNorm <- function (obs, pred) {
 #' @param pred predicted values
 #' @param expandFac scalar to expand the axes (for kernel to fill correctly)
 #' @export
-splotObsPred = function(obs, pred, expandFac = .25) {
+plotObsPred = function(obs, pred, expandFac = .25) {
 	require(ggplot2)
 	
 	df= data.frame(obs=obs, pred=pred, resid=obs-pred)
 	df$stdres = abs(df$resid)/sd(df$resid)
-
+	
 	## Set up an expand factor - used to use 
 	xlims = data.frame(min= min(df$obs)-expandFac*diff(range(df$obs)), max = max(df$obs)+expandFac*diff(range(df$obs)))
 	ylims = data.frame(min= min(df$pred)-expandFac*diff(range(df$pred)), max = max(df$pred)+expandFac*diff(range(df$pred)))
 	
-	g = ggplot(df,aes(x=obs,y=pred, fill=stdres))+
+	g = ggplot(df,aes(x=obs,y=pred, colour=stdres))+
 			stat_density2d(aes(alpha=..level..),alpha=.075, geom="polygon",fill="darkblue") +
 			scale_alpha_continuous(guide=FALSE)+ #
-			geom_point(shape=21, size=4, colour=NA, alpha=.75) +
-			scale_fill_gradient("Standardized\nResiduals\n(absolute val.)",low = "darkblue", high = "orangered") +
+			geom_point(shape=16, size=4,  alpha=.75) +
+			scale_colour_gradient("Standardized\nResiduals\n(absolute val.)",low = "darkblue", high = "orangered") +
 			scale_x_continuous("Observed", limits=c(xlims$min, xlims$max)) +  
 			scale_y_continuous("Predicted", limits=c(ylims$min, ylims$max)) +  
 			theme_bw() +
@@ -535,78 +535,79 @@ splotObsPred = function(obs, pred, expandFac = .25) {
 #' @param residuals add residuals (default=F)
 #' @param rug add rug plot at bottom of x-axis (default=F)
 #' @export
-splotGAMSplines <- function(mod, residuals=FALSE, rug=FALSE) {
-  require(ggplot2)
-  require(tidyr)
-  require(dplyr)
-  
-  ## Grab the data to plot, returned via plot.gam as of v1.8.5
-  x=capture.output({
-        png("NUL")
-        plotdata <- plot.gam(mod, pages = 1, all.terms=TRUE)
-        dev.off()
-      })
-
-
-if (residuals) {
-	fv <- as.data.frame(predict(mod,type="terms")) ## get term estimates
-	fv = fv %>% dplyr::select(starts_with("s(")) ## remove non-spline terms
-	names(fv) = gsub("^s|[(]|[)]","", names(fv)) ## replace with variable name for later 
-	prsd1 <- residuals(mod,type="working") #+ fv[,1]
-}
-
-
-
-  ## Create a long dataset for ggplot
-  predDat = NULL
-  resDat = NULL
-  levs =c()
-  
-  for (spls in plotdata) {
-    tdat = data.frame(x=spls$x, fit=spls$fit[,1], lower=spls$fit[,1]-spls$se, upper=spls$fit[,1]+spls$se)
-    tdat$var = spls$xlab
-    levs=c(levs,spls$xlab)
-    if (is.null(predDat)) {
-		predDat=tdat
-	} else {
-		predDat=rbind(predDat, tdat)
-	}
-
+plotGAMSplines <- function(mod, residuals=FALSE, rug=FALSE) {
+	require(ggplot2)
+	require(tidyr)
+	require(dplyr)
+	
+	## Grab the data to plot, returned via plot.gam as of v1.8.5
+	x=capture.output({
+				png("NUL")
+				plotdata <- plot.gam(mod, pages = 1, all.terms=TRUE)
+				dev.off()
+			})
+	
+	
 	if (residuals) {
-		rtdat = fv %>% dplyr::select(one_of(spls$xlab))
-		names(rtdat)="resid"
-		rtdat$resid = prsd1 + rtdat$resid
-		rtdat$x=mod$model[,spls$xlab]
-		rtdat$var = spls$xlab
-		
-		if (is.null(resDat)) {
-			resDat = rtdat
+		fv <- as.data.frame(predict(mod,type="terms")) ## get term estimates
+		fv = fv %>% dplyr::select(starts_with("s(")) ## remove non-spline terms
+		## names(fv) = gsub("^s|[(]|[)]","", names(fv)) ## replace with variable name for later 
+		names(fv) = gsub(".*s\\((.*)\\).*", "\\1", names(fv)) ## back reference -grab text between s(.*)
+		prsd1 <- residuals(mod,type="working") #+ fv[,1]
+	}
+	
+	
+	
+	## Create a long dataset for ggplot
+	predDat = NULL
+	resDat = NULL
+	levs =c()
+	
+	for (spls in plotdata) {
+		tdat = data.frame(x=spls$x, fit=spls$fit[,1], lower=spls$fit[,1]-spls$se, upper=spls$fit[,1]+spls$se)
+		tdat$var = spls$xlab
+		levs=c(levs,spls$xlab)
+		if (is.null(predDat)) {
+			predDat=tdat
 		} else {
-			resDat = rbind(resDat, rtdat)
+			predDat=rbind(predDat, tdat)
+		}
+		
+		if (residuals) {
+			rtdat = fv %>% dplyr::select(one_of(spls$xlab))
+			names(rtdat)="resid"
+			rtdat$resid = prsd1 + rtdat$resid
+			rtdat$x=mod$model[,spls$xlab]
+			rtdat$var = spls$xlab
+			
+			if (is.null(resDat)) {
+				resDat = rtdat
+			} else {
+				resDat = rbind(resDat, rtdat)
+			}
 		}
 	}
-  }
-
-  predDat$var = factor(predDat$var, level=levs)
-
-  datLng = mod$model %>% dplyr::select(one_of(levs)) %>% gather(var, x)
-  datLng$fit=0  
-  
-  
-  g= ggplot(data=predDat, aes(x=x, y=fit)) +
-      geom_line() +
-      geom_ribbon(aes(ymax=upper, ymin=lower), alpha=.25) +
-      facet_wrap(~var, scales="free_x") +
-      ylab("Partial Effect") +
-      theme_bw() +
-      theme(strip.text = element_text(size=10, face = "bold", colour = "black"),
-          axis.title.x =element_blank(),
-          axis.title.y =element_text(size=12, face = "bold", colour = "black"),
-          axis.text.x= element_text(size=10, angle=45, hjust = 1),
-          axis.text.y= element_text(size=10, angle=90, hjust=.5))
-  
+	
+	predDat$var = factor(predDat$var, level=levs)
+	
+	datLng = mod$model %>% dplyr::select(one_of(levs)) %>% gather(var, x)
+	datLng$fit=0  
+	
+	
+	g= ggplot(data=predDat, aes(x=x, y=fit)) +
+			geom_line() +
+			geom_ribbon(aes(ymax=upper, ymin=lower), alpha=.25) +
+			facet_wrap(~var, scales="free_x") +
+			ylab("Partial Effect") +
+			theme_bw() +
+			theme(strip.text = element_text(size=10, face = "bold", colour = "black"),
+					axis.title.x =element_blank(),
+					axis.title.y =element_text(size=12, face = "bold", colour = "black"),
+					axis.text.x= element_text(size=10, angle=45, hjust = 1),
+					axis.text.y= element_text(size=10, angle=90, hjust=.5))
+	
 	if (rug) g = g + geom_rug(data=datLng, sides="b", size=.1, position=position_jitter(width = 0.1)) 
 	if (residuals) g = g + geom_point(data=resDat, aes(x=x, y=resid), size=.01, alpha=0.25) 
 	
-  print(g)
+	print(g)
 }

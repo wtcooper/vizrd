@@ -33,7 +33,7 @@
 #' @param totPerPage Total number of figures per page (default=9)
 #' @param pdfFile The file path/name to save to.
 #' @export
-splotPartialEffs <- function(mod, dat, predFnx, colNms, type="all", dWeights=rep(1,dim(dat)[1]), 
+plotPartialEffs <- function(mod, dat, predFnx, colNms, type="all", dWeights=rep(1,dim(dat)[1]), 
 		CIOn=FALSE, totPerPage=12, pdfFile=NULL) {
 	require(dplyr)
 	require(grid)

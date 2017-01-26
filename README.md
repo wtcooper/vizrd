@@ -2,7 +2,7 @@
 Visualizations for R data and models 
 
 ## Overview
-Includes a number of static ggplot2 plots (splot....) and a few interactive ggivs plots (iplot....), 
+Includes a number of static ggplot2 plots (plot....) and a few interactive ggivs plots (iplot....), 
 along with a simple Shiny launcher package that provides summary statistics, a data table explorer, 
 a heatmap plot of raw (scaled) data, some distribution based plots, and ability to download
 the plots as .png.  Intended to provide a quick overview of a dataset and see how data
@@ -40,18 +40,18 @@ explore_data(c("iris","mtcars"))
 #### Explore Data #### 
 
 ## Static ggplot plots
-splotDataHeatmap(iris, colNms=names(iris)[1:4])
-splotDataHist(iris, colNm="Sepal.Length", binSize=.1)                       # All species
-splotDataHist(iris, colNm="Sepal.Length", binSize=.1, byCol="Species")      # By species
-splotDataPoints(iris, colNms=names(iris)[1:4])                              # All variables
-splotDataPoints(iris, colNms=names(iris)[1], byCol="Species")               # Single column, by species
-splotDataDist(iris, colNms=names(iris)[1:4])								# Distribution plot (violin + box plot)                              
-splotDataDist(iris, colNms=names(iris)[1], byCol="Species")               
-splotDataDist(iris, colNms=names(iris)[1:4], byCol="Species", baseCol="slategray1")     # facet columns with by group          
+plotDataHeatmap(iris, colNms=names(iris)[1:4])
+plotDataHist(iris, colNm="Sepal.Length", binSize=.1)                       # All species
+plotDataHist(iris, colNm="Sepal.Length", binSize=.1, byCol="Species")      # By species
+plotDataPoints(iris, colNms=names(iris)[1:4])                              # All variables
+plotDataPoints(iris, colNms=names(iris)[1], byCol="Species")               # Single column, by species
+plotDataDist(iris, colNms=names(iris)[1:4])								# Distribution plot (violin + box plot)                              
+plotDataDist(iris, colNms=names(iris)[1], byCol="Species")               
+plotDataDist(iris, colNms=names(iris)[1:4], byCol="Species")     # facet columns with by group          
 
 ## Save all data points to a pdf
-splotPointsToPDF(iris, colNms=names(iris)[1:4], totPerPage=4, pdffile="plots.pdf")
-splotDistToPDF(iris, colNms=names(iris)[1:4], byCol="Species",  totPerPage=4, pdffile="plots.pdf")
+plotPointsToPDF(iris, colNms=names(iris)[1:4], totPerPage=4, pdffile="plots.pdf")
+plotDistToPDF(iris, colNms=names(iris)[1:4], byCol="Species",  totPerPage=4, pdffile="plots.pdf")
 
 ```
 
@@ -69,9 +69,9 @@ modReg = lm(Sepal.Length~., data=trainDat)
 predReg = data.frame(obs=testDat$Sepal.Length, pred=predict(modReg, newdata=testDat))
 
 # make the plots
-splotResids(predReg$obs, predReg$pred)
-splotObsPred(predReg$obs, predReg$pred)
-splotQQNorm(predReg$obs, predReg$pred)
+plotResids(predReg$obs, predReg$pred)
+plotObsPred(predReg$obs, predReg$pred)
+plotQQNorm(predReg$obs, predReg$pred)
 
 
 
@@ -98,13 +98,13 @@ predBin = predBin %>% mutate(pred = round(prob,0)) %>%
 				pred=ifelse(pred==0,"versicolor","virginica"))
 
 # make the plots
-splotCM(predBin$pred, predBin$obs)
-splotCMSeq(predBin$prob, predBin$obs, posLabel="virginica", negLabel="versicolor")
-splotCMProbs(predBin$prob, predBin$obs, posLabel="virginica", negLabel="versicolor")
-splotTPFPProbs(predBin$prob, predBin$obs, posLabel="virginica", negLabel="versicolor")
-splotROC(predBin$prob, predBin$obs)
+plotCM(predBin$pred, predBin$obs)
+plotCMSeq(predBin$prob, predBin$obs, posLabel="virginica", negLabel="versicolor")
+plotCMProbs(predBin$prob, predBin$obs, posLabel="virginica", negLabel="versicolor")
+plotTPFPProbs(predBin$prob, predBin$obs, posLabel="virginica", negLabel="versicolor")
+plotROC(predBin$prob, predBin$obs)
 iplotROC(predBin$prob, predBin$obs)  #interactive ggvis version, more for playing with ggvis
-splotLift(predBin$prob, predBin$obs, posLabel="virginica", negLabel="versicolor")
+plotLift(predBin$prob, predBin$obs, posLabel="virginica", negLabel="versicolor")
 ```
 
 
@@ -128,7 +128,7 @@ model <- train(Species~., data=iris, trControl=train_control, method="glmnet")
 
 predFnx <- function(mod, newdata) predict(mod, newdata=newdata, type="prob")
 
-splotPartialEffs(model, iris, predFnx, colNms=names(iris)[1:4], type="all") 
+plotPartialEffs(model, iris, predFnx, colNms=names(iris)[1:4], type="all") 
 
 
 
@@ -139,7 +139,7 @@ irisFac$fac = as.factor(cut(irisFac$Sepal.Length, 3, labels = FALSE))
 
 modelFac <- train(Species~., data=irisFac, trControl=train_control, method="glmnet")
 
-splotPartialEffs(modelFac, irisFac, predFnx, colNms=names(irisFac)[c(1:4, 6)], 
+plotPartialEffs(modelFac, irisFac, predFnx, colNms=names(irisFac)[c(1:4, 6)], 
 	type="all", totPerPage=15) 
 
 
@@ -164,12 +164,12 @@ gamPredFnx <- function(mod, newdata) {
 
 # Plot at median value for numeric and mode value for factor/character's
 # I.e., hold covariates constant and get predictions along range of variable
-splotPartialEffs(gam.mod, dat, gamPredFnx, colNms=names(dat)[2:5], CIOn=T, 
+plotPartialEffs(gam.mod, dat, gamPredFnx, colNms=names(dat)[2:5], CIOn=T, 
 	type="median", totPerPage=9, pdffile=NULL) 
 
 # For each value of predictor, calculate prediction as mean of predictions from all data points at that given predictor value
 # I.e., for all observed covariates value combinations, get predictions along range of variable
-splotPartialEffs(gam.mod, dat, gamPredFnx, colNms=names(dat)[2:5], CIOn=T, 
+plotPartialEffs(gam.mod, dat, gamPredFnx, colNms=names(dat)[2:5], CIOn=T, 
 	type="all", totPerPage=9, pdffile=NULL) 
 
 ## Note: if have polynomial/interaction terms and want seperate effect 
@@ -180,7 +180,7 @@ dat2$x1Poly = dat2$x1*dat2$x1; dat2$x1Lin = dat2$x1
 gam.mod2 = gam(y ~ x0 + x1Lin + s(x1) + s(x1Poly) + s(x2) + offset(x3) , data = dat2)
 
 plot.gam(gam.mod2, pages=1, all.terms=T, se=1)
-splotPartialEffs(gam.mod2, dat2, gamPredFnx, colNms=names(dat2)[c(2,3,4,6,7)], CIOn=T, 
+plotPartialEffs(gam.mod2, dat2, gamPredFnx, colNms=names(dat2)[c(2,3,4,6,7)], CIOn=T, 
 	type="median", totPerPage=9, pdffile=NULL) 
 
 
@@ -197,14 +197,14 @@ rfPredFnx <- function(mod, newdata) {
 	preds = as.data.frame(predict(mod, newdata=newdata, type="prob"))
 }
 
-splotPartialEffs(mod=iris.rf, dat=iris, predFnx=rfPredFnx, colNms=names(iris)[1:4], 
+plotPartialEffs(mod=iris.rf, dat=iris, predFnx=rfPredFnx, colNms=names(iris)[1:4], 
 	type="median", totPerPage=9, pdffile=NULL) 
-splotPartialEffs(mod=iris.rf, dat=iris, predFnx=rfPredFnx, colNms=names(iris)[1:4], 
+plotPartialEffs(mod=iris.rf, dat=iris, predFnx=rfPredFnx, colNms=names(iris)[1:4], 
 	type="all", totPerPage=9, pdffile=NULL) 
 
 # output pdf
-splotPartialEffs(mod=iris.rf, dat=iris, predFnx=rfPredFnx, colNms=names(iris)[1:4], 
-	type="median", totPerPage=9, pdffile="irisplots.pdf") 
+plotPartialEffs(mod=iris.rf, dat=iris, predFnx=rfPredFnx, colNms=names(iris)[1:4], 
+	type="median", totPerPage=9, pdffile="iriplots.pdf") 
 
 
 ## Regression 
@@ -222,7 +222,7 @@ rfPredFnx <- function(mod, newdata) {
 	preds = data.frame(pred=predict(mod, newdata=newdata))
 }
 
-splotPartialEffs(rf.model, Data, rfPredFnx, colNms=c("a", "b", "c"), 
+plotPartialEffs(rf.model, Data, rfPredFnx, colNms=c("a", "b", "c"), 
 	type="median", totPerPage=9, pdffile=NULL) 
 
 ```
@@ -237,8 +237,8 @@ library(mgcv)
 dat <- gamSim(5,n=200,scale=2)
 mod <- gam(y ~ x1+ + s(x1) + s(I(x1^2)) + s(x2) + offset(x3) , data = dat)
 
-splotGAMSplines(mod)
-splotGAMSplines(mod, rug=TRUE, residuals=TRUE)   # add rug to x-axis and residuals 
+plotGAMSplines(mod)
+plotGAMSplines(mod, rug=TRUE, residuals=TRUE)   # add rug to x-axis and residuals 
 ```
 
 
