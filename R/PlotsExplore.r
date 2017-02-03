@@ -196,8 +196,9 @@ plotDataHist <- function(dat, colNm, numObs=NULL, binSize=1, minVal=NULL, maxVal
 #' @param byCol by group column name by which to facet the plots
 #' @param violCol the colour of the violin
 #' @param outAlpha the transparency for the boxplot outliers
+#' @param yLogScale if true, plot the y-axis on a log-10 scale
 #' @export
-plotDataDist <- function(dat, colNms=NULL, byCol=NULL, violCol="gray70", outAlpha=0.5) {
+plotDataDist <- function(dat, colNms=NULL, byCol=NULL, violCol="gray70", outAlpha=0.5, yLogScale=FALSE) {
 	require(tidyr)
 	require(dplyr)
 	require(ggplot2)	
@@ -229,7 +230,7 @@ plotDataDist <- function(dat, colNms=NULL, byCol=NULL, violCol="gray70", outAlph
 	
 	
 	if (!is.null(byCol)) {
-
+		
 		setnames(dat, byCol, "byCol")
 		plotDatLong = dat %>% gather(Variable, Value, -byCol) %>% filter(!is.na(Value)) %>% data.table()
 		
@@ -248,7 +249,9 @@ plotDataDist <- function(dat, colNms=NULL, byCol=NULL, violCol="gray70", outAlph
 						axis.title.x=element_blank(), 
 						axis.title.y = element_blank(),
 						strip.text = element_text(face="bold")
-						)
+				)
+		
+		if (yLogScale) g = g +	scale_y_log10() 
 		
 		
 		
@@ -270,10 +273,12 @@ plotDataDist <- function(dat, colNms=NULL, byCol=NULL, violCol="gray70", outAlph
 						axis.title.y = element_blank(),
 						axis.ticks.x=element_blank(),
 						strip.text = element_text(face="bold"))
-		g
+		
+		if (yLogScale) g = g +	scale_y_log10() 
+		
 	}
 	
-
+	
 	
 	print(g)
 }
