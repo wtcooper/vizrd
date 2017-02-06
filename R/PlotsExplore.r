@@ -197,8 +197,9 @@ plotDataHist <- function(dat, colNm, numObs=NULL, binSize=1, minVal=NULL, maxVal
 #' @param violCol the colour of the violin
 #' @param outAlpha the transparency for the boxplot outliers
 #' @param yLogScale if true, plot the y-axis on a log-10 scale
+#' @param facetScales "free" or "fixed" to set the y-axis among plots
 #' @export
-plotDataDist <- function(dat, colNms=NULL, byCol=NULL, violCol="gray70", outAlpha=0.5, yLogScale=FALSE) {
+plotDataDist <- function(dat, colNms=NULL, byCol=NULL, violCol="gray70", outAlpha=0.5, yLogScale=FALSE, facetScales="free") {
 	require(tidyr)
 	require(dplyr)
 	require(ggplot2)	
@@ -244,7 +245,7 @@ plotDataDist <- function(dat, colNms=NULL, byCol=NULL, violCol="gray70", outAlph
 				geom_boxplot(width=.1, size=1, colour="gray25", outlier.colour=NA) + 
 				geom_point(data = outlier_data, shape=16, size=2, colour="gray25", alpha=outAlpha) +
 				theme_bw() +
-				facet_wrap(~Variable, scales = "free") + 
+				facet_wrap(~Variable, scales = facetScales) + 
 				theme(axis.text.x = element_text(face="bold", angle = 45, hjust = 1,vjust=1), 
 						axis.title.x=element_blank(), 
 						axis.title.y = element_blank(),
@@ -267,7 +268,7 @@ plotDataDist <- function(dat, colNms=NULL, byCol=NULL, violCol="gray70", outAlph
 				geom_boxplot(width=.1, size=1, colour="gray25", outlier.colour=NA) + 
 				geom_point(data = outlier_data, shape=16, size=2, colour="gray25", alpha=outAlpha) +
 				theme_bw() +
-				facet_wrap(~Variable, scales = "free") + 
+				facet_wrap(~Variable, scales = facetScales) + 
 				theme(axis.text.x = element_blank(), 
 						axis.title.x=element_blank(), 
 						axis.title.y = element_blank(),

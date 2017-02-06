@@ -5,7 +5,7 @@
 \title{Plots the distribution for a given column(s) or for a column by group.}
 \usage{
 plotDataDist(dat, colNms = NULL, byCol = NULL, violCol = "gray70",
-  outAlpha = 0.5, yLogScale = FALSE)
+  outAlpha = 0.5, yLogScale = FALSE, facetScales = "free")
 }
 \arguments{
 \item{dat}{dataset}
@@ -19,6 +19,8 @@ plotDataDist(dat, colNms = NULL, byCol = NULL, violCol = "gray70",
 \item{outAlpha}{the transparency for the boxplot outliers}
 
 \item{yLogScale}{if true, plot the y-axis on a log-10 scale}
+
+\item{facetScales}{"free" or "fixed" to set the y-axis among plots}
 }
 \description{
 Plots the distribution for a given column(s) or for a column by group.
