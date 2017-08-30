@@ -237,7 +237,10 @@ plotDataDist <- function(dat, colNms=NULL, byCol=NULL, violCol="gray70", outAlph
 		
 		outlier_data <- plotDatLong[, find_outliers(Value), by=list(Variable, byCol)]
 		setnames(outlier_data, "V1", "Value")
-		outlier_data$Value = jitter(outlier_data$Value, factor=0.5) 
+		outlier_data = outlier_data %>% 
+				group_by(Variable) %>% 
+				mutate(Value = jitter(Value, factor=0.5)) %>% 
+				ungroup()
 		
 		
 		g = ggplot(data=plotDatLong, aes(x=byCol, y=Value)) +
